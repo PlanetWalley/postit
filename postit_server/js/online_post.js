@@ -57,6 +57,7 @@ var PostIt = function(){
 	message = message.replace(/\n/g,"</br>");
 
 	var userName = document.getElementById('user_name').value;
+	user_name = userName
 	socket.emit("User_Sent_Message", [longitude, latitude, message, userName, new Date()] )
 	User_Location_Marker_InfoWindow.close()
 	// createPostInformation(longitude, latitude, message, new Date(), userName)
