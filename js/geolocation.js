@@ -4,6 +4,7 @@ var longitude = 0; // current longitude
 var latitude = 0;  // current latitude
 var Google_Map = null;
 var User_Location_Marker = null
+var User_Location_Marker_InfoWindow = null
 // call this function
 var showPosition = function(position){
     // get longitude
@@ -50,9 +51,29 @@ var showPosition = function(position){
       // So create new one
       if (User_Location_Marker == null){
         User_Location_Marker = new google.maps.Marker({position:latlon,map:Google_Map,title:"You are here!"});
+        // init info window
+        User_Location_Marker_InfoWindow = new google.maps.InfoWindow();
         google.maps.event.addListener(User_Location_Marker, 'click', function() {
-            alert("U clicked me")
-        });
+                //                        alert(user_name + ": "+information[user_name][post_date]["message"])
+                User_Location_Marker_InfoWindow.setContent("<div style='width: 300px; height: 190px'>\
+              <label style='color:black;' id='label_user_name'>User Name  </label>\
+              <input id='user_name' value='planetwalley'/>\
+              </br>\
+              <label style='color:black;'>Post Message: </label>\
+              </br>\
+              <textarea re id='post_message'> Edit ur post message here</textarea>\
+              </br>\
+              <button id='postit' onclick='PostIt()'> PostIt!</button>\
+            </div>")
+                User_Location_Marker_InfoWindow.open(Google_Map, User_Location_Marker)                
+            });
+
+        // show hint
+        var infowindow = new google.maps.InfoWindow();
+        infowindow.setContent('<p>Touch Me to PostIt!</p>');
+        infowindow.open(Google_Map, User_Location_Marker);
+        // hide hint after 4 second
+        setTimeout(function(){infowindow.close()},4000)
     } 
     // update user marker position
     else{

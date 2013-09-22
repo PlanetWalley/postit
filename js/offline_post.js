@@ -22,7 +22,8 @@ var createPostInformation = function(user_longitude, user_latitude, user_message
 	// save information local storage
 	if(window.localStorage){
 		window.localStorage["postit"] = information
-		alert("Successfully PostIt!")
+		//alert("Successfully PostIt!")
+		User_Location_Marker_InfoWindow.setContent("<p>Successfully PostIt !</p>")
 
 		// get icon from google
 		var iconBase = 'https://maps.google.com/mapfiles/kml/shapes/';
@@ -37,7 +38,7 @@ var createPostInformation = function(user_longitude, user_latitude, user_message
 		var infowindow = new google.maps.InfoWindow();
 		google.maps.event.addListener(marker, 'click', function() {
             //                        alert(user_name + ": "+information[user_name][post_date]["message"])
-            infowindow.setContent(user_name+":</br>"+user_message)
+            infowindow.setContent("<strong>"+user_name+":</strong></br>"+user_message)
             infowindow.open(Google_Map, marker)                
             });
 
@@ -45,6 +46,12 @@ var createPostInformation = function(user_longitude, user_latitude, user_message
 	else{
 		alert("Cannot post cuz ur browser does not support local storage")
 	}
+
+	// close after 1.5 s
+	setTimeout(function(){
+		User_Location_Marker_InfoWindow.close()                
+	}, 1500)
+
 }
 
 
@@ -52,5 +59,6 @@ var PostIt = function(){
 	var message = document.getElementById('post_message').value;
 	var userName = document.getElementById('user_name').value;
 	createPostInformation(longitude, latitude, message, new Date(), userName)
-	$('#openPostCard').qtip('hide')
+	// $('#openPostCard').qtip('hide')
+
 }
