@@ -36,7 +36,7 @@ if (user.geolocation){
     navigator.geolocation.getCurrentPosition(showPosition, showError,
                                              
                                              {timeout:1000 ,// update every 1 sec 
-                                              enableHighAccuracy: true // enable high accuracy}
+                                              enableHighAccuracy: true} // enable high accuracy
                                             )
 }
 else{
