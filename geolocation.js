@@ -80,8 +80,8 @@ function showError(error){
 
 // check geolocation support 
 if (navigator.geolocation){
-    navigator.geolocation.getCurrentPosition(showPosition, showError,
-                                             {timeout:1000 ,// update every 1 sec 
+    navigator.geolocation.watchPosition(showPosition, showError,
+                                             {timeout:5000 ,// wait for up to 5 seconds to get location
                                               enableHighAccuracy: true} // enable high accuracy
                                               )
 }

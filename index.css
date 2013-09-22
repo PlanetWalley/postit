@@ -25,11 +25,17 @@ body {
 	top:20%;
 }
 #latInfo{
+	color: white;
+	background-color: #5CB3FF;
+	font-size: xx-large;
 	position: absolute;
 	top:20%;
 	z-index: 3;
 }
 #lonInfo{
+	color: white;
+	background-color: #5CB3FF;
+	font-size: xx-large;
 	position: absolute;
 	top:30%;
 	z-index: 4;
