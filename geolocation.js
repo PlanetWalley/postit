@@ -32,7 +32,7 @@ function showError(error){
 }
 
 // check geolocation support 
-if (user.geolocation){
+if (navigator.geolocation){
     navigator.geolocation.getCurrentPosition(showPosition, showError,
                                              
                                              {timeout:1000 ,// update every 1 sec 
