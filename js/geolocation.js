@@ -5,6 +5,7 @@ var latitude = 0;  // current latitude
 var Google_Map = null;
 var User_Location_Marker = null
 var User_Location_Marker_InfoWindow = null
+var hasInitGeolocation = false
 // call this function
 var showPosition = function(position){
     // get longitude
@@ -24,29 +25,30 @@ var showPosition = function(position){
       //mapholder.style.border-radius='250px';
 
       var myOptions={
-          draggable:false,
-          scrollwheel: false,
-          disableDoubleClickZoom:true,
-          panControl:false,
-          zoomControl:false,
-          mapTypeControl:false,
-          scaleControl:false,
-          streetViewControl:false,
-          overviewMapControl:false,
-          rotateControl:false,
-          center:latlon,
-          zoom:18,
-          mapTypeId:google.maps.MapTypeId.ROADMAP,
-          mapTypeControl:false,
-          navigationControlOptions:{style:google.maps.NavigationControlStyle.SMALL}
+        draggable:false,
+        scrollwheel: false,
+        disableDoubleClickZoom:true,
+        panControl:false,
+        zoomControl:false,
+        mapTypeControl:false,
+        scaleControl:false,
+        streetViewControl:false,
+        overviewMapControl:false,
+        rotateControl:false,
+        center:latlon,
+        zoom:18,
+        mapTypeId:google.maps.MapTypeId.ROADMAP,
+        mapTypeControl:false,
+        navigationControlOptions:{style:google.maps.NavigationControlStyle.SMALL}
       };
 
       if (Google_Map == null){
-        Google_Map=new google.maps.Map(document.getElementById("mapholder"),myOptions);
-    }
-    else{
+        Google_Map=new google.maps.Map(document.getElementById("mapholder"),myOptions); // init google map
+        initData() // init user data
+      }
+      else{
         Google_Map.setCenter(latlon)
-    }
+      }
       // User Position Marker does not exist
       // So create new one
       if (User_Location_Marker == null){
@@ -56,17 +58,17 @@ var showPosition = function(position){
         google.maps.event.addListener(User_Location_Marker, 'click', function() {
                 //                        alert(user_name + ": "+information[user_name][post_date]["message"])
                 User_Location_Marker_InfoWindow.setContent("<div style='width: 300px; height: 190px'>\
-              <label style='color:black;' id='label_user_name'>User Name  </label>\
-              <input id='user_name' value='planetwalley'/>\
-              </br>\
-              <label style='color:black;'>Post Message: </label>\
-              </br>\
-              <textarea re id='post_message'> Edit ur post message here</textarea>\
-              </br>\
-              <button id='postit' onclick='PostIt()'> PostIt!</button>\
-            </div>")
+                  <label style='color:black;' id='label_user_name'>User Name  </label>\
+                  <input id='user_name' value='planetwalley'/>\
+                  </br>\
+                  <label style='color:black;'>Post Message: </label>\
+                  </br>\
+                  <textarea re id='post_message'> Edit ur post message here</textarea>\
+                  </br>\
+                  <button id='postit' onclick='PostIt()'> PostIt!</button>\
+                  </div>")
                 User_Location_Marker_InfoWindow.open(Google_Map, User_Location_Marker)                
-            });
+              });
 
         // show hint
         var infowindow = new google.maps.InfoWindow();
@@ -74,40 +76,52 @@ var showPosition = function(position){
         infowindow.open(Google_Map, User_Location_Marker);
         // hide hint after 4 second
         setTimeout(function(){infowindow.close()},4000)
-    } 
+      } 
     // update user marker position
     else{
-        User_Location_Marker.setPosition(latlon)
+      User_Location_Marker.setPosition(latlon)
     }
-}
+
+    hasInitGeolocation = true
+  }
 
 // print error message
 function showError(error){
-    switch(error.code) 
-    {
-        case error.PERMISSION_DENIED:
-        alert("User denied the request for Geolocation.")
-        break;
-        case error.POSITION_UNAVAILABLE:
-        alert("Location information is unavailable.")
-        break;
-        case error.TIMEOUT:
-        alert("The request to get user location timed out.")
-        break;
-        case error.UNKNOWN_ERROR:
-        alert("An unknown error occurred.")
-        break;
-    }
+  switch(error.code) 
+  {
+    case error.PERMISSION_DENIED:
+    alert("User denied the request for Geolocation.")
+    break;
+    case error.POSITION_UNAVAILABLE:
+    alert("Location information is unavailable.")
+    break;
+    case error.TIMEOUT:
+    alert("The request to get user location timed out.")
+    break;
+    case error.UNKNOWN_ERROR:
+    alert("An unknown error occurred.")
+    break;
+  }
 }
 
 // check geolocation support 
 if (navigator.geolocation){
-    navigator.geolocation.watchPosition(showPosition, showError,
+  navigator.geolocation.watchPosition(showPosition, showError,
                                              {timeout:5000 ,// wait for up to 5 seconds to get location
                                               enableHighAccuracy: true} // enable high accuracy
                                               )
 }
 else{
-    alert("Sorry, Ur browser does not support geolocation")
+  alert("Sorry, Ur browser does not support geolocation")
 }
+
+
+
+
+
+
+
+
+
+
 

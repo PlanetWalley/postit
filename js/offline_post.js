@@ -1,6 +1,42 @@
 var user_name = "planetwalley" // user name
-var information = {} // information that will be stored in local, categorized by user name
+var information; // information that will be stored in local, categorized by user name
+// set markers according to saved data
+var initData = function(){ 
+	// load data
+    if(window.localStorage!==undefined && window.localStorage["postit"]!==undefined){
+      // console.log(typeof(window.localStorage["postit"]))
+      information = JSON.parse( window.localStorage["postit"] )
+	  	// begin to read data
+	    for(var user_name in information){
+	    	var data = information[user_name]
+	    	for(var post_date in data){
+	    		var latitude = data[post_date].latitude
+		    	var longitude = data[post_date].longitude
+		    	var user_message = data[post_date].message
 
+		    	// get icon from google
+				var iconBase = 'https://maps.google.com/mapfiles/kml/shapes/';
+				// init latlon
+				var latlon=new google.maps.LatLng(latitude, longitude)
+				// set marker
+				var marker=new google.maps.Marker({position:latlon,
+												   map:Google_Map,
+												   icon:iconBase + 'schools_maps.png', // set icon
+												   title:user_name+":"+post_date}); 
+				// init info window
+				var infowindow = new google.maps.InfoWindow();
+				google.maps.event.addListener(marker, 'click', function() {
+		            //                        alert(user_name + ": "+information[user_name][post_date]["message"])
+		            infowindow.setContent("<strong>"+user_name+":</strong></br>"+user_message)
+		            infowindow.open(Google_Map, marker)                
+		            });
+	    	}	
+	    }
+    }
+    else{
+      information = {}
+    }
+}
 
 var createPostInformation = function(user_longitude, user_latitude, user_message, post_date, user_name){
 	/*
@@ -21,7 +57,7 @@ var createPostInformation = function(user_longitude, user_latitude, user_message
 
 	// save information local storage
 	if(window.localStorage){
-		window.localStorage["postit"] = information
+		window.localStorage["postit"] = JSON.stringify(information) // save data to local storage
 		//alert("Successfully PostIt!")
 		User_Location_Marker_InfoWindow.setContent("<p>Successfully PostIt !</p>")
 
@@ -62,3 +98,4 @@ var PostIt = function(){
 	// $('#openPostCard').qtip('hide')
 
 }
+
