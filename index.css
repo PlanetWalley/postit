@@ -24,3 +24,13 @@ body {
 	left: 20%;
 	top:20%;
 }
+#latInfo{
+	position: absolute;
+	top:20%;
+	z-index: 3;
+}
+#lonInfo{
+	position: absolute;
+	top:30%;
+	z-index: 4;
+}

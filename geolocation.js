@@ -3,6 +3,7 @@
 var longitude = 0; // current longitude
 var latitude = 0;  // current latitude
 var Google_Map = null;
+var User_Location_Marker = null
 // call this function
 var showPosition = function(position){
     // get longitude
@@ -21,7 +22,7 @@ var showPosition = function(position){
       //mapholder.style.width='100px';
       //mapholder.style.border-radius='250px';
 
-    var myOptions={
+      var myOptions={
           draggable:false,
           disableDoubleClickZoom:true,
           panControl:false,
@@ -40,16 +41,23 @@ var showPosition = function(position){
 
       if (Google_Map == null){
         Google_Map=new google.maps.Map(document.getElementById("mapholder"),myOptions);
-      }
-      else{
+    }
+    else{
         Google_Map.setCenter(latlon)
-      }
-      //Google_Map=new google.maps.Map(document.getElementById("mapholder"),myOptions);
-      var marker=new google.maps.Marker({position:latlon,map:Google_Map,title:"You are here!"});
-      google.maps.event.addListener(marker, 'click', function() {
+    }
+      // User Position Marker does not exist
+      // So create new one
+      if (User_Location_Marker == null){
+        User_Location_Marker = new google.maps.Marker({position:latlon,map:Google_Map,title:"You are here!"});
+        google.maps.event.addListener(User_Location_Marker, 'click', function() {
             alert("U clicked me")
-         });
-      }
+        });
+    } 
+    // update user marker position
+    else{
+        User_Location_Marker.setPosition(latlon)
+    }
+}
 
 // print error message
 function showError(error){
