@@ -1,0 +1,60 @@
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Post It 2D</title>
+		<!-- CSS stylesheet -->
+		<link rel="stylesheet" type="text/css" href="./css/index.css">
+		<link rel="stylesheet" type="text/css" href="./css/post_card.css">
+		<!-- Google Maps API -->
+		<script src="http://maps.google.com/maps/api/js?sensor=false"></script> 
+		<!-- Local JavaScript -->
+		<script src="./js/geolocation.js"></script>
+		<!-- Use Online Mode -->
+		<script src="./js/online_post.js"></script>
+		<!-- <script type="text/javascript" src="./js/offline_post.js"></script> -->
+		<!-- nodejs use socketio to build server -->
+		<script src="/socket.io/socket.io.js"></script>
+	</head>
+	<body>
+		<div id="locationInfo">
+			<div id="mapholder">I am mapholder</div>
+		</div>
+
+		<script>
+		  var socket = io.connect('http://localhost');
+		  socket.on('news', function (data) {
+		    console.log(data);
+		    socket.emit('my other event', { my: 'data' });
+		  });
+
+		  // update map
+		  socket.on('Update_Map',function(data){
+		  	var latitude = data[1]
+		  	var longitude = data[0]
+		  	var user_message = data[2]
+		  	var user_name = data[3]
+		  	var post_date = data[4]
+
+		  	User_Location_Marker_InfoWindow.setContent("<p>Successfully PostIt !</p>")
+
+			// get icon from google
+			var iconBase = 'https://maps.google.com/mapfiles/kml/shapes/';
+			// init latlon
+			var latlon=new google.maps.LatLng(latitude, longitude)
+			// set marker
+			var marker=new google.maps.Marker({position:latlon,
+											   map:Google_Map,
+											   icon:iconBase + 'schools_maps.png', // set icon
+											   title:user_name+":"+post_date}); 
+			// init info window
+			var infowindow = new google.maps.InfoWindow();
+			google.maps.event.addListener(marker, 'click', function() {
+	            //                        alert(user_name + ": "+information[user_name][post_date]["message"])
+	            infowindow.setContent("<strong>"+user_name+":</strong></br>"+user_message)
+	            infowindow.open(Google_Map, marker)                
+	            });
+		  })
+		</script>
+
+	</body>
+</html>

@@ -1,0 +1,39 @@
+/*html{
+	width: 300px;
+	height: 200px;
+	background-color: #58D3F7;
+}
+body{
+	width: 300px;
+	height: 200px;
+	background-color: #58D3F7;
+	border: 2px solid #58ACFA;
+		font-size: normal;
+}*/
+label{
+	color : white;
+}
+#user_name{
+	color: white;
+	background: #58ACFA;
+	border:0px solid blue;
+}
+#post_message{
+	font-size: normal;
+	resize:none;
+	border:0px solid blue;
+	left: 10%;
+	width: 80%;
+	height: 90px;
+	color: white;
+	background: #58ACFA;
+}
+#postit{
+	color: white;
+	font-size: normal;
+	left: 10%;
+	width:80%;
+	height:30px;
+	border: 0px solid;
+	background: orange;
+}
