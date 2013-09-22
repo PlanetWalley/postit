@@ -26,7 +26,34 @@
 		    console.log(data);
 		    socket.emit('my other event', { my: 'data' });
 		  });
+		  socket.on('updateMapForFirstTimeConnectedUser',function(data){
+		  	console.log("Begin to receive data from server")
+		  	for (var user_name in data){
+		  		for(var post_date in data[user_name]){
+		  			var longitude = data[user_name][post_date][0]
+		  			var latitude = data[user_name][post_date][1]
+		  			var user_message = data[user_name][post_date][2]
 
+		  			// get icon from google
+					var iconBase = 'https://maps.google.com/mapfiles/kml/shapes/';
+					// init latlon
+					var latlon=new google.maps.LatLng(latitude, longitude)
+					// set marker
+					var marker=new google.maps.Marker({position:latlon,
+													   map:Google_Map,
+													   icon:iconBase + 'schools_maps.png', // set icon
+													   title:user_name+":"+post_date}); 
+					// init info window
+					var infowindow = new google.maps.InfoWindow();
+					google.maps.event.addListener(marker, 'click', function() {
+			            //                        alert(user_name + ": "+information[user_name][post_date]["message"])
+			            infowindow.setContent("<strong>"+user_name+":</strong></br>"+user_message)
+			            infowindow.open(Google_Map, marker)                
+			            });
+
+		  		}
+		  	}
+		  })
 		  // update map
 		  socket.on('Update_Map',function(data){
 		  	var latitude = data[1]
