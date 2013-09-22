@@ -18,6 +18,7 @@ body {
 	height: 15%;
 	border:0px solid blue;
 	background-color: orange;
+	opacity: 0.7;
 }
 #post_card{
 	display: none;

@@ -48,4 +48,5 @@ var PostIt = function(){
 	var message = document.getElementById('post_message').value;
 	var userName = document.getElementById('user_name').value;
 	createPostInformation(longitude, latitude, message, new Date(), userName)
+	$('#openPostCard').qtip('hide')
 }

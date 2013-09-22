@@ -22,7 +22,7 @@
 			<p><label id="latInfo" color="black">Latitude: null</label></p>
 			<p><label id="lonInfo" color="black">Longitude: null</label></p>
 
-			<button id="openPostCard" class="tooltip"> Post It! </button>
+			<button id="openPostCard" class="tooltip"> Leave a message. </button>
 
 			 <!-- onclick="PostIt()" -->
 		</div>
@@ -32,14 +32,14 @@
 					event: 'click'
 				},
 				content:{text: "<div style='width: 300px; height: 200px'>\
-							<label style='font-size: large;' id='label_user_name'>User Name  </label>\
+							<label style='font-size: large;' id='label_user_name'>User Name: </label>\
 							<input id='user_name' value='planetwalley'/>\
 							<br><br>\
-							<label style='font-size: large;'>Post Message: </label>\
+							<label style='font-size: large;'>Message: </label>\
 							<br><br>\
-							<textarea re id='post_message'> Edit ur post message here</textarea>\
+							<textarea re id='post_message'> Edit ur post message here.</textarea>\
 							</br></br>\
-							<button id='postit' onclick='PostIt()'> PostIt!</button>\
+							<button id='postit' onclick='PostIt()'> Post It!</button>\
 						</div>",
 						button: 'Close'
 					},
@@ -48,10 +48,10 @@
 				},
 				hide: {
 					event: 'click'
-				}
-				,
+				},
 				position: {
-					at: 'top right'
+					at: 'center',
+					target: $('#mapholder')
 				}
 			})
 		</script>
