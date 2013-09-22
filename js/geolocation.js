@@ -42,7 +42,6 @@ var showPosition = function(position){
 
       if (Google_Map == null){
         Google_Map=new google.maps.Map(document.getElementById("mapholder"),myOptions);
-        Google_Map.disableScrollWheelZoom();
     }
     else{
         Google_Map.setCenter(latlon)

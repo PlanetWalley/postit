@@ -33,9 +33,13 @@ var createPostInformation = function(user_longitude, user_latitude, user_message
 										   map:Google_Map,
 										   icon:iconBase + 'schools_maps.png', // set icon
 										   title:user_name+":"+post_date}); 
+		// init info window
+		var infowindow = new google.maps.InfoWindow();
 		google.maps.event.addListener(marker, 'click', function() {
-                                    alert(user_name + ": "+information[user_name][post_date]["message"])
-                                });
+            //                        alert(user_name + ": "+information[user_name][post_date]["message"])
+            infowindow.setContent(user_name+":</br>"+user_message)
+            infowindow.open(Google_Map, marker)                
+            });
 
 	}
 	else{
