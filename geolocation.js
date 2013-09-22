@@ -6,8 +6,10 @@ var showPosition = function(position){
     var longitude = position.coords.longitude
     // get latitude
     var latitude = position.coords.latitude
-    console.log("Longitude: "+longitude)
-    console.log("Latitude: "+latitude)
+    document.getElementById("latInfo").innerHTML = "Latitude: " + latitude;
+    document.getElementById("lonInfo").innerHTML = "Longitude: " + longitude;
+    //console.log("Longitude: "+longitude)
+    //console.log("Latitude: "+latitude)
 }
 
 // print error message
