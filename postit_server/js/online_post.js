@@ -57,7 +57,7 @@ var PostIt = function(){
 	message = message.replace(/\n/g,"</br>");
 
 	var userName = document.getElementById('user_name').value;
-	socket.emit("User_Sent_Message", [longitude, latitude, message, user_name, new Date()] )
+	socket.emit("User_Sent_Message", [longitude, latitude, message, userName, new Date()] )
 	User_Location_Marker_InfoWindow.close()
 	// createPostInformation(longitude, latitude, message, new Date(), userName)
 	// $('#openPostCard').qtip('hide')
