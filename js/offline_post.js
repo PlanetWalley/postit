@@ -45,7 +45,7 @@ var createPostInformation = function(user_longitude, user_latitude, user_message
 
 
 var PostIt = function(){
-	var message = prompt("Enter the message u want to post")
-	createPostInformation(longitude, latitude, message, new Date(), user_name)
-
+	var message = document.getElementById('post_message').value;
+	var userName = document.getElementById('user_name').value;
+	createPostInformation(longitude, latitude, message, new Date(), userName)
 }
