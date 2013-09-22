@@ -11,10 +11,10 @@ var showPosition = function(position){
     longitude = position.coords.longitude
     // get latitude
     latitude = position.coords.latitude
-    document.getElementById("latInfo").innerHTML = "Latitude: " + latitude;
-    document.getElementById("lonInfo").innerHTML = "Longitude: " + longitude;
-    //console.log("Longitude: "+longitude)
-    //console.log("Latitude: "+latitude)
+    // document.getElementById("latInfo").innerHTML = "Latitude: " + latitude;
+    // document.getElementById("lonInfo").innerHTML = "Longitude: " + longitude;
+    // console.log("Longitude: "+longitude)
+    // console.log("Latitude: "+latitude)
     
     // google map
     var latlon=new google.maps.LatLng(latitude, longitude)
