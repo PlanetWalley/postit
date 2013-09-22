@@ -22,7 +22,7 @@ var createPostInformation = function(user_longitude, user_latitude, user_message
 	// save information local storage
 	if(window.localStorage){
 		window.localStorage["postit"] = information
-		alert("Successfully PostIt!")
+		alert("Message posted successfully!")
 
 		// get icon from google
 		var iconBase = 'https://maps.google.com/mapfiles/kml/shapes/';
