@@ -4,11 +4,17 @@
 		<title>Post It 2D</title>
 		<link href="./index.css" rel="stylesheet" type="text/css">
 		<script type="text/javascript" src="./geolocation.js"></script>
+		<script src="http://maps.google.com/maps/api/js?sensor=false"></script> 
+		<script type="text/javascript" src="./offline_post.js"></script>
+		<script type="text/javascript" src="./jquery.js"></script>
 	</head>
 	<body>
 		<div id="locationInfo">
+			<div id="mapholder">I am mapholder</div>
 			<p><label id="latInfo">Latitude: null</label></p>
 			<p><label id="lonInfo">Longitude: null</label></p>
+			<button id="postit" onclick="PostIt()"> PostIt! </button>
+			<iframe id='post_card' src=""></iframe>
 		</div>
 	</body>
 </html>
