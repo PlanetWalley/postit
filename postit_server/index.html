@@ -80,7 +80,7 @@
 								       infowindow_id // get current inforwindow_id
 								       )  
 			{
-				console.log("POSTCOMMENT")
+				//console.log("POSTCOMMENT")
 
 				var comment_message = document.getElementById(infowindow_id).value
 				socket.emit("OtherUserComment", [ host_user_name,
@@ -100,7 +100,8 @@
 
 		  // update map after other people post or self post
 		  socket.on('Update_Map',function(data){
-		  	console.log(data)
+		  	console.log("UPDATE MAP")
+		  	//console.log(data)
 		  	var latitude = data['latitude']
 		  	var longitude = data['longitude']
 		  	var message = data['message']
@@ -160,7 +161,6 @@
 			var comment_obj = data['comment']
 			
 			var content = formatContent(host_user_name, message, data['time'], comment_obj, inforindow_marker_count)
-			console.log(content)
 			//INFOWINDOWS[infowindow_id].setContent( "<strong>"+host_user_name+":</strong></br>"+message )
 			INFOWINDOWS[inforindow_marker_count].setContent( content )
 		})
