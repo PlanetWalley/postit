@@ -1,4 +1,10 @@
+//ATTENTION
+/*
 
+        //draggable:false, // temporarily allowed
+
+
+*/
 // if can show position
 var longitude = 0; // current longitude
 var latitude = 0;  // current latitude
