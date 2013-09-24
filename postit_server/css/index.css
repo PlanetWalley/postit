@@ -1,6 +1,11 @@
 body {
     background-color: #5CB3FF;
 }
+button{
+	border: 0px solid;
+	color: white;
+	background-color: #2E9AFE;
+}
 #mapholder{
 	background-color: orange;
 	position: absolute;

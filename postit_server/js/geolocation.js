@@ -21,7 +21,7 @@ var showPosition = function(position){
       //mapholder.style.border-radius='250px';
 
       var myOptions={
-        draggable:false,
+        //draggable:false, // temporarily allowed
         scrollwheel: false,
         disableDoubleClickZoom:true,
         panControl:false,
@@ -54,11 +54,11 @@ var showPosition = function(position){
                 //                        alert(user_name + ": "+information[user_name][post_date]["message"])
                 User_Location_Marker_InfoWindow.setContent("<div style='width: 300px; height: 190px'>\
                   <label style='color:black;' id='label_user_name'>User Name  </label>\
-                  <input id='user_name' value='"+user_name+"'/>\
+                  <input id='user_name' value='"+user_name+"' onclick=\'this.value=\"\"\'/>\
                   </br>\
                   <label style='color:black;'>Post Message: </label>\
                   </br>\
-                  <textarea re id='post_message'> Edit ur post message here</textarea>\
+                  <textarea id='post_message' onclick=\'this.value=\"\"\'> Edit ur post message here</textarea>\
                   </br>\
                   <button id='postit' onclick='PostIt()'> PostIt!</button>\
                   </div>")
