@@ -6,8 +6,26 @@ app.listen(9001);
 var information = {}
 var inforindow_marker_count = 0
 
-var registered_users = ['yiyi']; // save users who already sign uped
-var user_passwd = {'yiyi':'123456'}; // save passwd
+// mongodb data base
+var dbURL = "mongodb://shd101wyy:4rfv5tgb@ds053698.mongolab.com:53698/postit"
+var collections = ['users'];
+var db = require("mongojs").connect(dbURL, collections);
+//  db.users.update({name:"shd101wyy"}, {'$set': {password:"hello world 12"}});
+//  db.users.save({name:"yuting", password:"hello world 3"});
+//  db.users.update({name:"yuting"}, {'$set': {password:"hello world 12"}});
+
+var USER_PASSWD = {'yiyi':'123456', 'yuting':'123456'}; // save passwd and registered user name
+/* init */
+for(var var_name in USER_PASSWD)
+{
+  var pwd = USER_PASSWD[var_name];
+  db.users.save({name:var_name, password:pwd});
+}
+
+/*
+  put users and user_passwd to data base
+*/
+
 
 function handler (req, res) {
   var file = __dirname + (req.url == '/' ? '/index.html' : req.url);
@@ -107,9 +125,9 @@ io.sockets.on('connection', function (socket) {
   {
     var user_name = data[0];
     var user_pwd = data[1];
-    if(user_name in user_passwd)
+    if(user_name in USER_PASSWD)
     {
-      var correct_pwd = user_passwd[user_name];
+      var correct_pwd = USER_PASSWD[user_name];
       if(correct_pwd === user_pwd) // successfully login
       {
         socket.emit("successfully-login",[])
@@ -129,12 +147,16 @@ io.sockets.on('connection', function (socket) {
   /* check with server whether user existed */
   socket.on("user_wants_to_signup", function(data)
   {
-    if(data[0] in registered_users)
+    var user_name = data[0];
+    var user_pwd = data[1];
+    if(data[0] in USER_PASSWD)
     {
       socket.emit("user_already_registered", data); // that means user already registed 
     }
     else // user haven't registered
     {
+      USER_PASSWD[user_name] = user_pwd; // save user name and password
+      db.users.save({name:user_name, password:user_pwd})
       socket.emit("user_successfully_registered",data); // successfully signup
     }
   })

@@ -98,6 +98,14 @@ button{
 	height: 40px;
 	font-size: 12px;
 }
+#login2_return_to_login
+{
+	margin-left: 40px;
+	width: 140px;
+	height: 40px;
+	font-size: 12px;
+	display: none;
+}
 
 #login_user_name
 {
