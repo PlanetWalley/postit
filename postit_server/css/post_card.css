@@ -16,6 +16,7 @@ label{
 #user_name{
 	color: white;
 	background: #58ACFA;
+	width: 80%;
 	border:0px solid blue;
 }
 #post_message{

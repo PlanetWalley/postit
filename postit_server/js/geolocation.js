@@ -62,7 +62,7 @@ var showPosition = function(position){
                 //                        alert(user_name + ": "+information[user_name][post_date]["message"])
                 User_Location_Marker_InfoWindow.setContent("<div style='width: 300px; height: 190px'>\
                   <label style='color:black;' id='label_user_name'>User Name  </label>\
-                  <input id='user_name' value='"+user_name+"' onclick=\'this.value=\"\"\'/>\
+                  <p id='user_name'>"+CURRENT_USER_NAME+"</p>\
                   </br>\
                   <label style='color:black;'>Post Message: </label>\
                   </br>\
