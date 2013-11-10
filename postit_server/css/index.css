@@ -1,3 +1,6 @@
+html{
+	font-family: Helvetica;
+}
 body {
     background-color: #5CB3FF;
 }
@@ -46,3 +49,84 @@ button{
 	top:30%;
 	z-index: 4;
 }
+/* login  */
+#login
+{
+	background: #D358F7;
+	position: absolute;
+	top: -50%;
+	height: 350px;
+	width: 50%;
+	left: 25%;
+	color: white;
+}
+#login1
+{
+	margin-left: 50px;
+}
+#login2
+{
+	margin-top: 20px;
+}
+#login_head{
+	color: white;
+	margin-left: 50px;
+}
+#login_information
+{
+	color: white;
+}
+
+#login2_button_login
+{
+	margin-left: 40px;
+	width: 140px;
+	height: 40px;
+	font-size: 12px;
+}
+#login2_button_signup
+{
+	margin-left: 40px;
+	width: 140px;
+	height: 40px;
+	font-size: 12px;
+}
+#login2_button_forgetpwd
+{
+	margin-left: 40px;
+	width: 140px;
+	height: 40px;
+	font-size: 12px;
+}
+
+#login_user_name
+{
+	height: 30px;
+	width: 200px;
+}
+
+#login_user_pwd
+{
+	height: 30px;
+	width: 200px;
+	margin-bottom: 20px;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

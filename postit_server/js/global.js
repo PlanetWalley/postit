@@ -1,0 +1,7 @@
+/*
+	GLOBAL VARIABLE
+
+	this file is used to save global variable
+*/
+var CONNECTED_TO_SERVER = false;
+var socket; // socket

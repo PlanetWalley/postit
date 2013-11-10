@@ -6,6 +6,8 @@ app.listen(9001);
 var information = {}
 var inforindow_marker_count = 0
 
+var registered_users = ['yiyi']; // save users who already sign uped
+var user_passwd = {'yiyi':'123456'}; // save passwd
 
 function handler (req, res) {
   var file = __dirname + (req.url == '/' ? '/index.html' : req.url);
@@ -22,6 +24,7 @@ function handler (req, res) {
 io.sockets.on('connection', function (socket) {
   console.log("User Connected") // user connected
 
+  socket.emit('connect_to_server$',[]);
   socket.emit('updateMapForFirstTimeConnectedUser', information); // update map for user that first connected
 
   socket.on('my other event', function (data) {
@@ -99,9 +102,57 @@ io.sockets.on('connection', function (socket) {
     socket.emit("Update_InfoWindow_Information_From_User_Comment", information[host_user_name][host_user_post_date] )
   })
 
+  /* user try to login */
+  socket.on("user_login", function(data)
+  {
+    var user_name = data[0];
+    var user_pwd = data[1];
+    if(user_name in user_passwd)
+    {
+      var correct_pwd = user_passwd[user_name];
+      if(correct_pwd === user_pwd) // successfully login
+      {
+        socket.emit("successfully-login",[])
+      }
+      else // wrong password
+      {
+        socket.emit("login--wrong_user_name_or_wrong_password", "Sorry... Your user name or password is wrong")
+      }
+    }
+    else
+    {
+      socket.emit("login--wrong_user_name_or_wrong_password", "Sorry... Your user name or password is wrong")
+    }
+  })
 
 
-
-
+  /* check with server whether user existed */
+  socket.on("user_wants_to_signup", function(data)
+  {
+    if(data[0] in registered_users)
+    {
+      socket.emit("user_already_registered", data); // that means user already registed 
+    }
+    else // user haven't registered
+    {
+      socket.emit("user_successfully_registered",data); // successfully signup
+    }
+  })
 
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
