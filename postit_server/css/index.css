@@ -121,16 +121,74 @@ button{
 
 }
 
+#friend_list
+{
+	position: absolute;
+	width: 120px;
+	height: 30px;
+	right:    0;
+	bottom:   0;
+	font-size: 12px;
+	display: none;
+}
+
+#friend_list_panel
+{
+	color: white;
+	position: absolute;
+	width: 400px;
+	height: 500px;
+	right: 0px;
+	bottom: 30;
+	background-color: #454545;
+	display: none;
+
+}
 
 
+#user_profile_picture
+{
+	position: absolute;
+	width: 150px;
+	height: 150px;
+	left: 20px;
+	top: 20px;
+	background-color: purple;
+}
 
+#friend_list_user_name
+{
+	position: absolute;
+	color: white;
+	left: 190px;
+	top:50px;
+}
+#add_friend
+{
+	position: absolute;
+	width: 80px;
+	left: 190px;
+	top: 100px;
+}
+#logout
+{
+	position: absolute;
+	width: 80px;
+	left: 270px;
+	top: 100px;
+	margin-left: 10px;
+}
 
-
-
-
-
-
-
+#friend_information
+{
+	background-color: yellow;
+	position: absolute;
+	top: 200px;
+	left: 20px;
+	width: 360px;
+	height: 300px;
+	overflow: scroll;
+}
 
 
 

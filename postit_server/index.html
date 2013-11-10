@@ -47,6 +47,57 @@
 		</h1>
 	</div>
 
+	<button id="friend_list" onclick="show_friend_list()"> Friend List </button>
+
+	<div id="friend_list_panel">
+		<div id="user_profile_picture"> 
+		</div>
+		<h2 id="friend_list_user_name">
+			User Name
+		</h2>
+		<button id="close_panel" onclick="hide_friend_list_panel()"> X </button>
+		<button id="add_friend" onclick="add_friend()">Add Friend</button>
+		<button id="logout">Logout</button>
+		<div id="friend_information">
+		<ul>
+			<li>
+				<p> yiyi </p>
+			</li>
+			<li>
+				<p> yiyi </p>
+			</li>
+			<li>
+				<p> yiyi </p>
+			</li>
+			<li>
+				<p> yiyi </p>
+			</li>
+			<li>
+				<p> yiyi </p>
+			</li>
+			<li>
+				<p> yiyi </p>
+			</li>
+			<li>
+				<p> yiyi </p>
+			</li>
+			<li>
+				<p> yiyi </p>
+			</li>
+			<li>
+				<p> yiyi </p>
+			</li>
+			<li>
+				<p> yiyi </p>
+			</li>
+			<li>
+				<p> yiyi </p>
+			</li>
+
+		</ul>
+		</div>
+	</div>
+
 	<script>
 	// login function
 	var user_login = function()
@@ -109,6 +160,24 @@
 		$("#login2_return_to_login").hide(1000);
 		document.getElementById("login2_button_signup").onclick = user_change_to_signup_page
 		document.getElementById("login2_button_signup").innerText = "Sign Up"
+	}
+
+	/* show friend list panel */
+	var show_friend_list = function()
+	{
+		$("#friend_list_panel").show(1000);
+	}
+	/* hide friend list panel */
+	var hide_friend_list_panel = function()
+	{
+		$("#friend_list_panel").hide(1000);
+	}
+
+	/* add friend */
+	var add_friend = function()
+	{
+		var find_friend_name = prompt("Find Friend Name: ");
+		socket.emit("find_friend_name", [find_friend_name, CURRENT_USER_NAME]);
 	}
 
 	window.onload = function(){ // window onload
@@ -265,8 +334,13 @@
 		{
 			alert("Successfully Sign Up!!! ;)");
 			USER_LOGIN = true; // update global variable
+			CURRENT_USER_NAME = data; // update user_name
+
 			// hide login page
 			$("#login").animate({ "top": -800 }, 1000); 
+			// show friend list button
+			$("#friend_list").show(1000);
+
 		})
 
 		// login--wrong_user_name
@@ -278,9 +352,24 @@
 		socket.on('successfully-login', function(data)
 		{
 			alert("Successfully Login");
+			CURRENT_USER_NAME = data; // update user_name
 			USER_LOGIN = true; // update global variable
 			// hide login page
 			$("#login").animate({ "top": -800 }, 1000); 
+			// show friend list button
+			$("#friend_list").show(1000);
+		})
+
+		// user_does_not_exist
+		socket.on('user_does_not_exist', function(data)
+		{
+			alert("User Doesn't Exist");
+		})
+
+		// have friend request
+		socket.on('have_friend_request', function(from_user_name)
+		{
+			alert("You have a friend request from : " + from_user_name);
 		})
 	}
 	</script>

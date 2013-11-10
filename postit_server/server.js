@@ -14,17 +14,54 @@ var db = require("mongojs").connect(dbURL, collections);
 //  db.users.save({name:"yuting", password:"hello world 3"});
 //  db.users.update({name:"yuting"}, {'$set': {password:"hello world 12"}});
 
-var USER_PASSWD = {'yiyi':'123456', 'yuting':'123456'}; // save passwd and registered user name
-/* init */
-for(var var_name in USER_PASSWD)
-{
-  var pwd = USER_PASSWD[var_name];
-  db.users.save({name:var_name, password:pwd});
-}
+/*
+  save to data base
+
+  {
+    name: ____,
+    password: _____,
+    friend: [friend1, friend2, ....]
+    friend_request_from: []
+  }
+*/
 
 /*
   put users and user_passwd to data base
 */
+
+var USER_PASSWD = {};  // user_naem : user_password
+var USER_FRIENDS = {}; // user_name : [user_friends_list]
+var USER_FRIEND_REQUSET = {}; // user_name : [friend_request...]
+var SOCKET_ID = {};    // used to save user id
+
+// retrieve data from data base
+db.users.find({}, function(error, data)
+{
+  if(error || !data)
+  {
+    console.log("Error...");
+    return;
+  }
+  else{
+    for(var i=0; i < data.length; i++)
+    {
+      var d = data[i];
+      var user_name = d["name"];
+      var pwd = d["password"];
+      var fl = d["friends_list"]; // friends list
+      var fr = d["friend_request_from"] // friend request
+
+      USER_PASSWD[user_name] = pwd;
+      USER_FRIENDS[user_name] = fl;
+      USER_FRIEND_REQUSET[user_name] = fr;
+    }
+  }
+  console.log("Finish Retrieve Data from Data Base");
+  console.log(USER_PASSWD);
+  console.log(USER_FRIENDS);
+  console.log(USER_FRIEND_REQUSET);
+
+})
 
 
 function handler (req, res) {
@@ -40,7 +77,8 @@ function handler (req, res) {
 }
 
 io.sockets.on('connection', function (socket) {
-  console.log("User Connected") // user connected
+  console.log("User Connected... USER_ID: ") // user connected
+  console.log(socket.id); // print socket id
 
   socket.emit('connect_to_server$',[]);
   socket.emit('updateMapForFirstTimeConnectedUser', information); // update map for user that first connected
@@ -130,7 +168,14 @@ io.sockets.on('connection', function (socket) {
       var correct_pwd = USER_PASSWD[user_name];
       if(correct_pwd === user_pwd) // successfully login
       {
-        socket.emit("successfully-login",[])
+        console.log("User Login====");
+        console.log("User Socket ID: "+socket.id);
+        socket.emit("successfully-login",user_name); 
+
+        // set user socket id
+        SOCKET_ID[user_name] = socket
+        // socket.id = user_name;
+
       }
       else // wrong password
       {
@@ -156,9 +201,56 @@ io.sockets.on('connection', function (socket) {
     else // user haven't registered
     {
       USER_PASSWD[user_name] = user_pwd; // save user name and password
-      db.users.save({name:user_name, password:user_pwd})
-      socket.emit("user_successfully_registered",data); // successfully signup
+      USER_FRIENDS[user_name] = []; // init friend list
+
+      db.users.save({
+        name:user_name, 
+        password:user_pwd, 
+        friends_list:[],
+        friend_request_from:[]
+        }) // save user and password to data base
+
+      socket.emit("user_successfully_registered", user_name); // successfully signup
+      console.log("User Signup");
+      console.log("User Socket ID: " + socket.id);
+
+      // set user socket id
+      SOCKET_ID[user_name] = socket;
+      // socket.id = user_name;
     }
+  })
+
+  socket.on('find_friend_name', function(data)
+  {
+    // data[1] send friend request to data[0]
+    var request_from = data[1];
+    var to_user = data[0];
+    if (to_user in USER_PASSWD) // user exists
+    {
+
+      socket.emit("successfully_send_friend_request",[]); // send friend request to the friend u want to add
+      SOCKET_ID[to_user].emit("have_friend_request", request_from); // send request to friend
+
+      // add friend request
+      if(request_from in USER_FRIEND_REQUSET[to_user])
+      {}
+      else
+        USER_FRIEND_REQUSET[to_user].push(request_from); // update user_friend_request
+
+      // update data base
+      db.users.update({name:to_user},{$set: {friend_request_from: USER_FRIEND_REQUSET[to_user]}})
+    }
+    else
+    {
+      socket.emit("user_does_not_exist",[]); // send back to inform user that friend request has been sent
+    }
+  })
+
+  // user disconnect
+  socket.on('disconnect', function()
+  {
+    console.log("USER_DISCONNECT");
+    console.log("Socket ID: " + socket.id);
   })
 
 });
