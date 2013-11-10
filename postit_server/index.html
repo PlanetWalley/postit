@@ -188,8 +188,8 @@
 		var inforwindow = TO_USER_INFORWINDOW[require_friend_name]
 		var user_name = require_friend_name;
 		socket.emit("get_friend_information", [CURRENT_USER_NAME, user_name]); // CURRENT_USER_NAME wants to get information from user_name
-        inforwindow.setContent("Now Loading information");
-        inforwindow.open(Google_Map, FRIENDS_MARKERS[user_name]);        
+		inforwindow.setContent("Now Loading information");
+		inforwindow.open(Google_Map, FRIENDS_MARKERS[user_name]);        
 	}
 
 	/* move to friend location */
@@ -213,14 +213,14 @@
 				{
 					inforwindow_require_friend_information(user_name);
 					inforwindow.open(Google_Map, FRIENDS_MARKERS[user_name]); 
-		        });
+				});
 			}
 			else
 			{
 				var inforwindow = TO_USER_INFORWINDOW[user_name];
-	        	inforwindow.open(Google_Map, FRIENDS_MARKERS[user_name]); 
-	        	inforwindow_require_friend_information(user_name);       
-	        }
+				inforwindow.open(Google_Map, FRIENDS_MARKERS[user_name]); 
+				inforwindow_require_friend_information(user_name);       
+			}
 		})
 		socket.on("cannot_get_friend_location", function(data)
 		{
@@ -302,14 +302,14 @@
 			// change notification number span 
 			document.getElementById("notification_num").innerHTML = notification_num;
 		})
-	}
-	/* hide notification panel */
-	var hide_notification_panel = function()
-	{
-		SHOW_NOTIFICATIONS = false;
-		$("#notifications_panel").hide(1000);
-		document.getElementById("notifications").onclick = show_notifications_panel;
-	}
+}
+/* hide notification panel */
+var hide_notification_panel = function()
+{
+	SHOW_NOTIFICATIONS = false;
+	$("#notifications_panel").hide(1000);
+	document.getElementById("notifications").onclick = show_notifications_panel;
+}
 	var accept_friend = function(user_name) // accpet user friend request from user_name
 	{
 		alert("Accept Friend: "+user_name);
@@ -328,8 +328,25 @@
 		socket.emit("find_friend_name", [find_friend_name, CURRENT_USER_NAME]);
 	}
 
+  	// post comment 						
+	var postComment = function(
+						       host_user_name,   // get host user name
+						       host_user_post_date, // get host user post date
+						       infowindow_id // get current inforwindow_id
+						       )  
+	{
+		//console.log("POSTCOMMENT")
+
+		var comment_message = document.getElementById(infowindow_id).value
+		socket.emit("OtherUserComment", [ host_user_name,
+										  CURRENT_USER_NAME, // comment user name
+										  host_user_post_date,
+										  comment_message,
+										  infowindow_id
+										  ]  )
+	}
 	window.onload = function(){ // window onload
-		alert("Onload")
+		// alert("Onload")
 		$("#login").animate({ "top": 0 }, 1000); 
 
 		socket = io.connect();
@@ -375,7 +392,7 @@
 
 		   // update map from server
 		   socket.on('updateMapForFirstTimeConnectedUser',function(data){
-		   console.log("Begin to receive data from server")
+		   	console.log("Begin to receive data from server")
 		   	for (var user_name in data){
 		   		for(var post_date in data[user_name]){
 		   			var data_ = data[user_name][post_date]
@@ -383,23 +400,7 @@
 		   		}
 		   	}
 		   })
-			// post comment 						
-			var postComment = function(
-								       host_user_name,   // get host user name
-								       host_user_post_date, // get host user post date
-								       infowindow_id // get current inforwindow_id
-								       )  
-			{
-				//console.log("POSTCOMMENT")
 
-				var comment_message = document.getElementById(infowindow_id).value
-				socket.emit("OtherUserComment", [ host_user_name,
-												  user_name, // comment user name
-												  host_user_post_date,
-												  comment_message,
-												  infowindow_id
-												  ]  )
-			}
 
 			// update comment
 			socket.on('Update_InfoWindow_Information_From_User_Comment',function(data){
@@ -410,6 +411,8 @@
 
 		  // update map after other people post or self post
 		  socket.on('Update_Map',function(data){
+
+
 		  	console.log("UPDATE MAP")
 		  	//console.log(data)
 		  	var latitude = data['latitude']
@@ -419,6 +422,13 @@
 		  	var post_date = data['time']
 		  	var comment = data['comment']
 		  	var inforindow_marker_count = data['inforindow_marker_count']
+
+		  	console.log(user_name);
+		  	console.log(post_date);
+		  	console.log(message);
+		  	console.log(longitude);
+		  	console.log(latitude);
+		  	console.log(comment);
 
 		  	User_Location_Marker_InfoWindow.setContent("<p>Successfully PostIt !</p>")
 
@@ -515,11 +525,11 @@
 			// show notification button
 			$("#notifications").show(1000);
 			// upload ur location to ur friend!
-    		socket.emit("send_ur_location_to_friend", [CURRENT_USER_NAME, LONGITUDE, LATITUDE]);
+			socket.emit("send_ur_location_to_friend", [CURRENT_USER_NAME, LONGITUDE, LATITUDE]);
     		// ask friends to update friend list and notifications
     		socket.emit("ask_friends_to_update_friends_list_and_notifications",CURRENT_USER_NAME)
     		// request friend location
-		})
+    	})
 
 		// user_does_not_exist
 		socket.on('user_does_not_exist', function(data)
@@ -571,7 +581,7 @@
 			
 
 				// get icon from google
-  			var iconBase = 'https://maps.google.com/mapfiles/kml/shapes/';
+				var iconBase = 'https://maps.google.com/mapfiles/kml/shapes/';
 			// init latlon
 			var latlon=new google.maps.LatLng(latitude, longitude)
 			// set marker
@@ -598,7 +608,7 @@
 				{
 					inforwindow_require_friend_information(user_name);
 					inforwindow.open(Google_Map, FRIENDS_MARKERS[user_name]); 
-		        });
+				});
 			}
 		})
 
@@ -610,34 +620,34 @@
 
 		/* inforwindow receive information from friend. update friend name, friend chat */
 		socket.on("receive_friend_information", function(data)
-	    {
-	    	var format_chat_message = function(messages)
-	    	{
-	    		var output = "<ul>";
-	    		for(var i = 0; i < messages.length; i++)
-	    		{
-	    			output += "<li>"+messages[i]+"</li>"
-	    		}
-	    		output+= '</ul>'
-	    		return output
-	    	}
-	    	var content = "";
-	    	var user_name = data[0];
-	    	var chat_message = data[1];
-	    	var chat_str = format_chat_message(chat_message);
-	    	var p = "<h3>"+user_name+"</h3>"
-	    	var chat_div = "<div style='width 190px; height:130px; overflow:scroll; background-color:yellow'  id='chat_div_" + CHAT_DIV_ID + "'> "
-	    					+ chat_str +
-	    				  " </div>"
-	    	var input_ = "<input value='message to send' style='height:50px;' id='" + 'chat_input_'+CHAT_INPUT_ID + "'>";
-	    	var button = "<button onclick='chat_send_message(\""+CURRENT_USER_NAME + "\"," + '"' + user_name + '",' + '"' + CHAT_INPUT_ID + '",' +
-	    	'"'+CHAT_DIV_ID+'"' + ") '>send</button>";
-	    	content = content + "<div style='width:200px; height:220px; overflow:scroll;'>" + p + chat_div + input_ + button + "</div>";
-	    	TO_USER_INFORWINDOW[user_name].setContent(content);
+		{
+			var format_chat_message = function(messages)
+			{
+				var output = "<ul>";
+				for(var i = 0; i < messages.length; i++)
+				{
+					output += "<li>"+messages[i]+"</li>"
+				}
+				output+= '</ul>'
+				return output
+			}
+			var content = "";
+			var user_name = data[0];
+			var chat_message = data[1];
+			var chat_str = format_chat_message(chat_message);
+			var p = "<h3>"+user_name+"</h3>"
+			var chat_div = "<div style='width 190px; height:130px; overflow:scroll; background-color:yellow'  id='chat_div_" + CHAT_DIV_ID + "'> "
+			+ chat_str +
+			" </div>"
+			var input_ = "<input value='message to send' style='height:50px;' id='" + 'chat_input_'+CHAT_INPUT_ID + "'>";
+			var button = "<button onclick='chat_send_message(\""+CURRENT_USER_NAME + "\"," + '"' + user_name + '",' + '"' + CHAT_INPUT_ID + '",' +
+				'"'+CHAT_DIV_ID+'"' + ") '>send</button>";
+		content = content + "<div style='width:200px; height:220px; overflow:scroll;'>" + p + chat_div + input_ + button + "</div>";
+		TO_USER_INFORWINDOW[user_name].setContent(content);
 
 	    	// update char input id
 	    	CHAT_INPUT_ID++;
-	     })
+	    })
 
 		socket.on("ur_friend_accept_u_as_friend", function(data)
 		{
@@ -682,7 +692,7 @@
 			}
 		})
 	}
-	</script>
+</script>
 
 </body>
 </html>

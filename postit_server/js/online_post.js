@@ -71,8 +71,8 @@ var PostIt = function(){
 	// window.localStorage["user_name"] = user_name
 	
 	var post_information = {
-		latitude:latitude,   // post location latitude
-		longitude:longitude, // post location longitude
+		latitude:LATITUDE,   // post location latitude
+		longitude:LONGITUDE, // post location longitude
 		message:message,     // user post message
 		time: String(new Date()),           // user post time
 		comment:[],                // other users comment

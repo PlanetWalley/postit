@@ -154,6 +154,7 @@ io.sockets.on('connection', function (socket) {
 
   // receive comment from other user
   socket.on("OtherUserComment",function(data){
+    console.log("Other User Comment");
     var host_user_name = data[0]
     var comment_user_name = data[1]
     var host_user_post_date = data[2]
