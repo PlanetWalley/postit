@@ -14,11 +14,19 @@ var User_Location_Marker_InfoWindow = null
 var hasInitGeolocation = false
 // call this function
 var showPosition = function(position){
+    console.log("Enter Here");
     // get longitude
-    longitude = position.coords.longitude
+    longitude = position.coords.longitude;
+    LONGITUDE = longitude;
     // get latitude
-    latitude = position.coords.latitude
+    latitude = position.coords.latitude;
+    LATITUDE = latitude;
+
+    console.log("Longitude: "+longitude+"  Latitude: "+latitude)
     
+    // upload ur location to ur friend!
+    socket.emit("send_ur_location_to_friend", [CURRENT_USER_NAME, longitude, latitude]);
+
     // google map
     var latlon=new google.maps.LatLng(latitude, longitude)
     var mapholder=document.getElementById('mapholder')
@@ -108,7 +116,7 @@ function showError(error){
 // check geolocation support 
 if (navigator.geolocation){
   navigator.geolocation.watchPosition(showPosition, showError,
-                                             {timeout:5000 ,// wait for up to 5 seconds to get location
+                                             {timeout:2000 ,// wait for up to 5 seconds to get location
                                               enableHighAccuracy: true} // enable high accuracy
                                               )
 }

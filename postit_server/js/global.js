@@ -9,3 +9,5 @@ var USER_LOGIN = false;
 var CURRENT_USER_NAME = "";
 var FRIENDS_REQUEST = []; // friend request list
 var NOTIFICATIONS_DATA = []; // save notification data
+var LONGITUDE = 0;
+var LATITUDE = 0;

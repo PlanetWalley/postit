@@ -34,6 +34,9 @@ var USER_FRIENDS = {}; // user_name : [user_friends_list]
 var USER_FRIEND_REQUSET = {}; // user_name : [friend_request...]
 var SOCKET_ID = {};    // used to save user id
 
+var USER_LONGITUDE = {}; // save user longitude
+var USER_LATIDUE = {};   // save user latitude
+
 // retrieve data from data base
 db.users.find({}, function(error, data)
 {
@@ -172,9 +175,21 @@ io.sockets.on('connection', function (socket) {
         console.log("User Socket ID: "+socket.id);
         socket.emit("successfully-login",[user_name, USER_FRIEND_REQUSET[user_name]]); 
 
-        // set user socket id
+         // set user socket id
         SOCKET_ID[user_name] = socket
         // socket.id = user_name;
+
+        // get friend locations
+        for(var i = 0; i < USER_FRIENDS[user_name].length; i++)
+        {
+          var friend_name = USER_FRIENDS[user_name][i];
+          if(friend_name in USER_LONGITUDE)
+          {
+            var friend_longitude = USER_LONGITUDE[friend_name];
+            var friend_latitude = USER_LATIDUE[friend_name];
+            socket.emit("update_friend_location", [friend_longitude, friend_latitude, friend_name]);
+          }
+        }
 
       }
       else // wrong password
@@ -222,20 +237,38 @@ io.sockets.on('connection', function (socket) {
 
   socket.on('find_friend_name', function(data)
   {
+    console.log("User: "+data[1]);
+    console.log("wants to add " + data[0]+" as friend");
     // data[1] send friend request to data[0]
     var request_from = data[1];
     var to_user = data[0];
+
+    // check whether is already friend
+    for(var i = 0; i < USER_FRIENDS[request_from].length; i++)
+    {
+      if(USER_FRIENDS[request_from][i] === to_user)
+      {
+         socket.emit("is_already_friend", to_user);
+          return;
+      }
+    }
+   
     if (to_user in USER_PASSWD) // user exists
     {
+      if(typeof(USER_FRIEND_REQUSET[to_user]) == "undefined")
+        return;
       // add friend request
       if(request_from in USER_FRIEND_REQUSET[to_user])
-      {}
+      {
+
+      }
       else{
         USER_FRIEND_REQUSET[to_user].push(request_from); // update user_friend_request
       }
 
       socket.emit("successfully_send_friend_request",[]); // send friend request to the friend u want to add
-      SOCKET_ID[to_user].emit("have_friend_request", [request_from, USER_FRIEND_REQUSET[to_user] ]); // send request to friend
+      if(SOCKET_ID[to_user])
+        SOCKET_ID[to_user].emit("have_friend_request", [request_from, USER_FRIEND_REQUSET[to_user] ]); // send request to friend
 
       // update data base
       db.users.update({name:to_user},{$set: {friend_request_from: USER_FRIEND_REQUSET[to_user]}})
@@ -310,12 +343,32 @@ io.sockets.on('connection', function (socket) {
   {
     console.log("USER_DISCONNECT");
     console.log("Socket ID: " + socket.id);
+
+    // delete USER_LONGITUDE
+    // delete USER_LATITUDE
   })
 
   // user request to get information about notifications
   socket.on('request_notifications_information', function(user_name)
   {
     socket.emit("receive_notifications_information", USER_FRIEND_REQUSET[user_name] );
+  })
+
+  socket.on("send_ur_location_to_friend", function(data)
+  {
+    var user_name = data[0];
+    var longitude = data[1];
+    var latitude = data[2];
+
+    if(user_name === "") return; // invalid user name
+
+    USER_LONGITUDE[user_name] = longitude;
+    USER_LATIDUE[user_name] = latitude;
+
+    for(var i = 0; i < USER_FRIENDS[user_name]; i++)
+    {
+      SOCKET_ID[user_name].emit("update_friend_location", [longitude, latitude, user_name]);
+    }
   })
 
   // user request friend list information

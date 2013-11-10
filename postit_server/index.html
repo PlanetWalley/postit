@@ -9,15 +9,14 @@
 	<script src="http://maps.google.com/maps/api/js?sensor=false"></script> 
 	<!-- Load Global Variable -->
 	<script src="./js/global.js"></script>
-	<!-- Local JavaScript -->
-	<script src="./js/geolocation.js"></script>
 	<!-- Use Online Mode -->
 	<script src="./js/online_post.js"></script>
 	<!-- Basic functions -->
 	<script src="./js/functions.js"></script>
 	<!--  JQuery Library -->
 	<script type="text/javascript" src="./js/jquery.js"></script>
-
+	<!-- Local JavaScript -->
+	<script src="./js/geolocation.js"></script>
 	<!-- <script type="text/javascript" src="./js/offline_post.js"></script> -->
 	<!-- nodejs use socketio to build server -->
 	<script src="/socket.io/socket.io.js"></script>
@@ -149,7 +148,7 @@
 		{
 			var FRIEND_LIST = data;
 			// check friend list
-			console.log(FRIEND_LIST);
+			// console.log(FRIEND_LIST);
 
 			var content = "";
 			for(var i = 0; i < FRIEND_LIST.length; i++)
@@ -264,7 +263,7 @@
 
 		   // update map from server
 		   socket.on('updateMapForFirstTimeConnectedUser',function(data){
-		   	console.log("Begin to receive data from server")
+		   console.log("Begin to receive data from server")
 		   	for (var user_name in data){
 		   		for(var post_date in data[user_name]){
 		   			var data_ = data[user_name][post_date]
@@ -311,8 +310,8 @@
 
 		  	User_Location_Marker_InfoWindow.setContent("<p>Successfully PostIt !</p>")
 
-				  			// get icon from google
-				  			var iconBase = 'https://maps.google.com/mapfiles/kml/shapes/';
+  			// get icon from google
+  			var iconBase = 'https://maps.google.com/mapfiles/kml/shapes/';
 			// init latlon
 			var latlon=new google.maps.LatLng(latitude, longitude)
 			// set marker
@@ -403,6 +402,8 @@
 			$("#friend_list").show(1000);
 			// show notification button
 			$("#notifications").show(1000);
+			// upload ur location to ur friend!
+    		socket.emit("send_ur_location_to_friend", [CURRENT_USER_NAME, longitude, latitude]);
 		})
 
 		// user_does_not_exist
@@ -417,6 +418,30 @@
 			from_user_name = data[0];  // get request from user
 			FRIENDS_REQUEST = data[1]; // update friend request data
 			alert("You have a friend request from : " + from_user_name);
+		})
+
+		// update friend location 
+		socket.on("update_friend_location", function(data)
+		{
+			var longitude = data[0];
+			var latitude = data[1];
+			var user_name = data[2];
+
+			console.log("GET longitude: "+longitude+" latitude: "+latitude+" from "+user_name);
+				// get icon from google
+  			var iconBase = 'https://maps.google.com/mapfiles/kml/shapes/';
+			// init latlon
+			var latlon=new google.maps.LatLng(latitude, longitude)
+			// set marker
+			var marker=new google.maps.Marker({position:latlon,
+				map:Google_Map,
+				icon:iconBase + 'schools_maps.png', // set icon
+				title:user_name}); 
+		})
+
+		// is already
+		socket.on("is_already_friend", function(data){
+			alert(data+ " is already ur friend");
 		})
 	}
 	</script>
