@@ -140,31 +140,45 @@
 	/* show friend list panel */
 	var show_friend_list = function()
 	{
+		SHOW_FRIEND_LIST = true;
+		if(SHOW_NOTIFICATIONS)
+		{
+			hide_notification_panel();
+		}
+
 		$("#friend_list_panel").show(1000);
 		document.getElementById("friend_list").onclick = hide_friend_list_panel; // reset click function
 		$("#friend_list_user_name").html ( CURRENT_USER_NAME );
 		socket.emit("request_friend_list_information", CURRENT_USER_NAME);
 		socket.on("receive_friend_list_information", function(data)
 		{
-			var FRIEND_LIST = data;
+			var online_friends = data[0];
+			var offline_friends = data[1];
 			// check friend list
 			// console.log(FRIEND_LIST);
 
 			var content = "";
-			for(var i = 0; i < FRIEND_LIST.length; i++)
+			for(var i = 0; i < online_friends.length; i++)
 			{
-				var user_name = FRIEND_LIST[i];
-				var user_name_content = "<p>"+user_name+"</p>";
-				var l = "<li>"+user_name+"</li>";
+				var user_name = online_friends[i];
+				var user_name_content = "<p style='color:green;'>"+user_name+"</p>";
+				var l = "<li>"+user_name_content+"</li>";
 				content += l;
 			}
-
+			for(var i = 0; i < offline_friends.length; i++)
+			{
+				var user_name = offline_friends[i];
+				var user_name_content = "<p style='color:white;'>"+user_name+"</p>";
+				var l = "<li>"+user_name_content+"</li>";
+				content += l;
+			}
 			document.getElementById('friend_information_list').innerHTML = content;
 		})
 	}
 	/* hide friend list panel */
 	var hide_friend_list_panel = function()
 	{
+		SHOW_FRIEND_LIST = false;
 		$("#friend_list_panel").hide(1000);
 		document.getElementById("friend_list").onclick = show_friend_list;
 	}
@@ -172,6 +186,11 @@
 	/* show notification panel */
 	var show_notifications_panel = function()
 	{
+		SHOW_NOTIFICATIONS = true;
+		if(SHOW_FRIEND_LIST)
+		{
+			hide_friend_list_panel();
+		}
 		$("#notifications_panel").show(1000);
 		document.getElementById("notifications").onclick = hide_notification_panel;
 		
@@ -198,6 +217,7 @@
 	/* hide notification panel */
 	var hide_notification_panel = function()
 	{
+		SHOW_NOTIFICATIONS = false;
 		$("#notifications_panel").hide(1000);
 		document.getElementById("notifications").onclick = show_notifications_panel;
 	}
@@ -228,6 +248,9 @@
 			console.log("CONNECT TO SERVER") // connect to server successfully;
 			CONNECTED_TO_SERVER = true; 
 		});
+
+		beginGeolocation();
+
 
 		var updateMap = function(data){ // update map data
 			var latitude = data['latitude']
@@ -381,7 +404,6 @@
 			$("#friend_list").show(1000);
 			// show notification button
 			$("#notifications").show(1000);
-
 		})
 
 		// login--wrong_user_name
@@ -395,6 +417,7 @@
 			alert("Successfully Login");
 			CURRENT_USER_NAME = data[0]; // update user_name
 			FRIENDS_REQUEST = data[1];   // update user friend list
+			USER_FRIENDS = data[2];      // update USER_FRIENDS
 			USER_LOGIN = true; // update global variable
 			// hide login page
 			$("#login").animate({ "top": -800 }, 1000); 
@@ -403,7 +426,10 @@
 			// show notification button
 			$("#notifications").show(1000);
 			// upload ur location to ur friend!
-    		socket.emit("send_ur_location_to_friend", [CURRENT_USER_NAME, longitude, latitude]);
+    		socket.emit("send_ur_location_to_friend", [CURRENT_USER_NAME, LONGITUDE, LATITUDE]);
+    		// ask friends to update friend list and notifications
+    		socket.emit("ask_friends_to_update_friends_list_and_notifications",CURRENT_USER_NAME)
+    		// request friend location
 		})
 
 		// user_does_not_exist
@@ -427,21 +453,42 @@
 			var latitude = data[1];
 			var user_name = data[2];
 
+			FRIENDS_LONGITUDE[user_name] = longitude;
+			FRIENDS_LATITUDE[user_name] = latitude;
+
 			console.log("GET longitude: "+longitude+" latitude: "+latitude+" from "+user_name);
 				// get icon from google
   			var iconBase = 'https://maps.google.com/mapfiles/kml/shapes/';
 			// init latlon
 			var latlon=new google.maps.LatLng(latitude, longitude)
 			// set marker
-			var marker=new google.maps.Marker({position:latlon,
-				map:Google_Map,
-				icon:iconBase + 'schools_maps.png', // set icon
-				title:user_name}); 
+			if(typeof(FRIENDS_MARKERS[user_name]) === 'undefined')
+				FRIENDS_MARKERS[user_name]=new google.maps.Marker({position:latlon,
+					map:Google_Map,
+					icon:iconBase + 'schools_maps.png', // set icon
+					title:user_name}); 
+			else
+				FRIENDS_MARKERS[user_name].setPosition(latlon) // update location
 		})
 
 		// is already
-		socket.on("is_already_friend", function(data){
+		socket.on("is_already_friend", function(data)
+		{
 			alert(data+ " is already ur friend");
+		})
+
+		// need_update_friend_list_or_notifications
+		socket.on("need_update_friend_list_or_notifications", function(data)
+		{
+			if(SHOW_NOTIFICATIONS)
+			{
+				socket.emit("request_notifications_information", CURRENT_USER_NAME);
+			}
+			if(SHOW_FRIEND_LIST)
+			{
+				socket.emit("request_friend_list_information", CURRENT_USER_NAME);
+			}
+			socket.emit("send_ur_location_to_friend", [CURRENT_USER_NAME, LONGITUDE, LATITUDE]);
 		})
 	}
 	</script>

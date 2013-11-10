@@ -35,7 +35,10 @@ var USER_FRIEND_REQUSET = {}; // user_name : [friend_request...]
 var SOCKET_ID = {};    // used to save user id
 
 var USER_LONGITUDE = {}; // save user longitude
-var USER_LATIDUE = {};   // save user latitude
+var USER_LATITUDE = {};   // save user latitude
+var SOCKET_ID_TO_USER_NAME = {}; // socket.id -> user_name
+
+var CURRENT_ONLINE_USERS = {}; // save online users
 
 // retrieve data from data base
 db.users.find({}, function(error, data)
@@ -173,10 +176,12 @@ io.sockets.on('connection', function (socket) {
       {
         console.log("User Login====");
         console.log("User Socket ID: "+socket.id);
-        socket.emit("successfully-login",[user_name, USER_FRIEND_REQUSET[user_name]]); 
+        socket.emit("successfully-login",[user_name, USER_FRIEND_REQUSET[user_name], USER_FRIENDS[user_name]]); 
 
          // set user socket id
         SOCKET_ID[user_name] = socket
+        SOCKET_ID_TO_USER_NAME[socket.id] = user_name;
+        CURRENT_ONLINE_USERS[user_name] = true;
         // socket.id = user_name;
 
         // get friend locations
@@ -186,7 +191,7 @@ io.sockets.on('connection', function (socket) {
           if(friend_name in USER_LONGITUDE)
           {
             var friend_longitude = USER_LONGITUDE[friend_name];
-            var friend_latitude = USER_LATIDUE[friend_name];
+            var friend_latitude = USER_LATITUDE[friend_name];
             socket.emit("update_friend_location", [friend_longitude, friend_latitude, friend_name]);
           }
         }
@@ -231,6 +236,8 @@ io.sockets.on('connection', function (socket) {
 
       // set user socket id
       SOCKET_ID[user_name] = socket;
+      SOCKET_ID_TO_USER_NAME[socket.id] = user_name;
+      CURRENT_ONLINE_USERS[user_name] = true;
       // socket.id = user_name;
     }
   })
@@ -309,6 +316,10 @@ io.sockets.on('connection', function (socket) {
     // update data base
     db.users.update({name: user_}, {$set: {friends_list: USER_FRIENDS[user_]}});
     db.users.update({name: accept_}, {$set: {friends_list: USER_FRIENDS[accept_]}});
+
+    // update need_update_friend_list_or_notifications
+    SOCKET_ID[user_].emit("need_update_friend_list_or_notifications", []);
+    SOCKET_ID[accept_].emit("need_update_friend_list_or_notifications", []);
   })
 
   // user reject friend
@@ -338,16 +349,6 @@ io.sockets.on('connection', function (socket) {
 
   })
 
-  // user disconnect
-  socket.on('disconnect', function()
-  {
-    console.log("USER_DISCONNECT");
-    console.log("Socket ID: " + socket.id);
-
-    // delete USER_LONGITUDE
-    // delete USER_LATITUDE
-  })
-
   // user request to get information about notifications
   socket.on('request_notifications_information', function(user_name)
   {
@@ -363,21 +364,89 @@ io.sockets.on('connection', function (socket) {
     if(user_name === "") return; // invalid user name
 
     USER_LONGITUDE[user_name] = longitude;
-    USER_LATIDUE[user_name] = latitude;
+    USER_LATITUDE[user_name] = latitude;
 
-    for(var i = 0; i < USER_FRIENDS[user_name]; i++)
+    for(var i = 0; i < USER_FRIENDS[user_name].length; i++)
     {
-      SOCKET_ID[user_name].emit("update_friend_location", [longitude, latitude, user_name]);
+      if(typeof(SOCKET_ID[USER_FRIENDS[user_name][i]]) === 'undefined') continue;
+      SOCKET_ID[USER_FRIENDS[user_name][i]].emit("update_friend_location", [longitude, latitude, user_name]);
     }
   })
 
   // user request friend list information
   socket.on('request_friend_list_information', function(user_name)
   {
-    socket.emit("receive_friend_list_information", USER_FRIENDS[user_name]);
+    var user_friends = USER_FRIENDS[user_name]; 
+    // check online friends and offline friends
+    var online_friends = [];
+    var offline_friends = [];
+    for(var i = 0; i < user_friends.length; i++)
+    {
+      if(user_friends[i] in CURRENT_ONLINE_USERS)
+        online_friends.push(user_friends[i])
+      else
+        offline_friends.push(user_friends[i])
+    }
+    socket.emit("receive_friend_list_information", [online_friends, offline_friends]);
   })
 
+  socket.on("ask_friends_to_update_friends_list_and_notifications", function(user_name)
+  {
+    for(var i = 0; i < USER_FRIENDS[user_name].length; i++)
+    {
+      if(typeof(SOCKET_ID[USER_FRIENDS[user_name][i]]) === 'undefined') continue;
+      SOCKET_ID[USER_FRIENDS[user_name][i]].emit("need_update_friend_list_or_notifications",[])
+    }
+  })
+    // user disconnect
+  socket.on('disconnect', function()
+  {
+    console.log("USER_DISCONNECT");
+    console.log("Socket ID: " + socket.id);
+
+    var user_name = SOCKET_ID_TO_USER_NAME[socket.id];
+    if(typeof(user_name) === "undefined") return;
+    console.log("USER_NAME: "+user_name);
+    // delete USER_LONGITUDE
+    // delete USER_LATITUDE
+    delete USER_LONGITUDE[user_name];
+    delete USER_LATITUDE[user_name];
+    delete CURRENT_ONLINE_USERS[user_name];
+
+    for(var i = 0; i < USER_FRIENDS[user_name].length; i++)
+    {
+      if(typeof(SOCKET_ID[USER_FRIENDS[user_name][i]]) === 'undefined') continue;
+      SOCKET_ID[USER_FRIENDS[user_name][i]].emit("update_friend_location", [0, 0, user_name]);     // remove from friend's map
+
+      SOCKET_ID[USER_FRIENDS[user_name][i]].emit("need_update_friend_list_or_notifications",[])
+    }
+
+  })
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

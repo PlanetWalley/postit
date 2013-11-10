@@ -5,13 +5,7 @@
 
 
 */
-// if can show position
-var longitude = 0; // current longitude
-var latitude = 0;  // current latitude
-var Google_Map = null;
-var User_Location_Marker = null
-var User_Location_Marker_InfoWindow = null
-var hasInitGeolocation = false
+var beginGeolocation = function(){
 // call this function
 var showPosition = function(position){
     console.log("Enter Here");
@@ -122,6 +116,7 @@ if (navigator.geolocation){
 }
 else{
   alert("Sorry, Ur browser does not support geolocation")
+}
 }
 
 
