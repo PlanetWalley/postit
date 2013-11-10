@@ -86,6 +86,41 @@ var showPosition = function(position){
     }
 
     hasInitGeolocation = true
+
+    // check public message
+    for(var i in PUBLIC_MESSAGE)
+    {
+      var post_user_name = PUBLIC_MESSAGE[i][0];
+      var user_message = PUBLIC_MESSAGE[i][1];
+      var user_post_date = PUBLIC_MESSAGE[i][2];
+      var user_longitude = PUBLIC_MESSAGE[i][3];
+      var user_latitude = PUBLIC_MESSAGE[i][4];
+
+      // set radius 100 meters by default
+      var distance = distanceBetweenTwoPoint(LONGITUDE, LATITUDE, user_longitude, user_latitude);
+      var need_to_show_notification_panel = false;
+      if(distance <= 100)
+      {
+        if(typeof(NEARBY_PUBLIC_MESSAGE[i]) === 'undefined')
+        {
+          NEARBY_PUBLIC_MESSAGE[i] = false;
+        }
+        if(NEARBY_PUBLIC_MESSAGE[i] === false)
+        {
+          NEARBY_PUBLIC_MESSAGE[i] = PUBLIC_MESSAGE[i];
+          need_to_show_notification_panel = true;
+        }
+      }
+      else
+      {
+        if(typeof(NEARBY_PUBLIC_MESSAGE[i]) === 'undefined')
+        {
+          NEARBY_PUBLIC_MESSAGE[i] = false;
+        }
+      }
+      if(need_to_show_notification_panel)
+        show_notifications_panel("");
+    }
   }
 
 // print error message

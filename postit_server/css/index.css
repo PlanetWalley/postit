@@ -222,6 +222,11 @@ button{
 	overflow: scroll;
 }
 
+.friend_distance
+{
+	position: absolute;
+	left: 250px;
+}
 
 
 

@@ -40,6 +40,8 @@ var SOCKET_ID_TO_USER_NAME = {}; // socket.id -> user_name
 
 var CURRENT_ONLINE_USERS = {}; // save online users
 
+var USER1_TO_USER2_CHAT = {}; // key is user1 name + : + user2 name
+
 // retrieve data from data base
 db.users.find({}, function(error, data)
 {
@@ -133,7 +135,10 @@ io.sockets.on('connection', function (socket) {
       information[user_name]={}
     information[user_name][post_date] = data
 
+    // update map
     io.sockets.emit('Update_Map', data);
+    // public
+    io.sockets.emit("public_message", [user_name, user_message, post_date, longitude, latitude])
 
     inforindow_marker_count++ // update count
   })
@@ -320,6 +325,7 @@ io.sockets.on('connection', function (socket) {
     // update need_update_friend_list_or_notifications
     SOCKET_ID[user_].emit("need_update_friend_list_or_notifications", []);
     SOCKET_ID[accept_].emit("need_update_friend_list_or_notifications", []);
+    SOCKET_ID[accept_].emit("ur_friend_accept_u_as_friend", [user_])
   })
 
   // user reject friend
@@ -407,6 +413,37 @@ io.sockets.on('connection', function (socket) {
       socket.emit('receive_friend_location', [USER_LONGITUDE[user_name], USER_LATITUDE[user_name]]);
   })
 
+  socket.on('get_friend_information', function(data)
+  {
+    var user_name = data[0];
+    var get_user = data[1]
+    var user_friends = USER_FRIENDS[user_name];
+    var chat_message;
+    if(typeof(USER1_TO_USER2_CHAT[user_name+":"+get_user]) === 'undefined')
+      chat_message = []
+    else
+      chat_message = USER1_TO_USER2_CHAT[user_name+":"+get_user]
+    socket.emit("receive_friend_information", [get_user, chat_message]);
+  
+  })
+  // user send chat message
+  socket.on("user_send_chat_message", function(data)
+  {
+    var user_ = data[0];
+    var send_to = data[1];
+    var input_message = data[2];
+    console.log(user_ + " try to send message to " + send_to + " with message: " + input_message)
+    if(typeof(USER1_TO_USER2_CHAT[user_+":"+send_to]) === 'undefined')
+    {
+      USER1_TO_USER2_CHAT[user_+":"+send_to] = [input_message];
+    }
+    else
+    {
+      USER1_TO_USER2_CHAT[user_+":"+send_to].push(input_message);
+    }
+    socket.emit("receive_friend_information", [send_to, USER1_TO_USER2_CHAT[user_+":"+send_to]])
+    SOCKET_ID[send_to].emit("receive_friend_information", [user_, USER1_TO_USER2_CHAT[user_+":"+send_to]])
+  })
     // user disconnect
   socket.on('disconnect', function()
   {

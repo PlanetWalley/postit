@@ -49,7 +49,7 @@
 	<button id="friend_list" onclick="show_friend_list()"> Friend List </button>
 
 	<div id="friend_list_panel">
-		<div id="user_profile_picture"> 
+		<div id="user_profile_picture" > 
 		</div>
 		<h2 id="friend_list_user_name" onclick="return_to_current_location()">
 			User Name
@@ -62,7 +62,7 @@
 		</div>
 	</div>
 
-	<button id="notifications" onclick="show_notifications_panel()"> Notifications </button>
+	<button id="notifications" onclick="show_notifications_panel('')"> Notifications <span id='notification_num' style="color:red;"> 0 </span> </button>
 	<div id="notifications_panel">
 		<h1 style="margin-left:20px;">
 			Notifications ;)
@@ -175,6 +175,23 @@
 			document.getElementById('friend_information_list').innerHTML = content;
 		})
 	}
+	
+	var chat_send_message  = function(user_, send_to_user, chat_input_id, chat_div_id)
+	{
+		console.log("User: "+user_+" send message to "+send_to_user+" with chat input id: "+ chat_input_id + " and chat div id: " + chat_div_id);
+		socket.emit("user_send_chat_message", [user_, send_to_user, $("#chat_input_"+chat_input_id).val(), chat_div_id]);
+	}
+
+	// content in information window
+	var inforwindow_require_friend_information = function(require_friend_name)
+	{
+		var inforwindow = TO_USER_INFORWINDOW[require_friend_name]
+		var user_name = require_friend_name;
+		socket.emit("get_friend_information", [CURRENT_USER_NAME, user_name]); // CURRENT_USER_NAME wants to get information from user_name
+        inforwindow.setContent("Now Loading information");
+        inforwindow.open(Google_Map, FRIENDS_MARKERS[user_name]);        
+	}
+
 	/* move to friend location */
 	var moveMapToUser = function(move_to_user_name)
 	{
@@ -182,9 +199,28 @@
 		socket.emit("get_friend_location", move_to_user_name);
 		socket.on("receive_friend_location", function(data)
 		{	
+			var user_name = move_to_user_name;
 			var longitude = data[0];
 			var latitude = data[1];
 			Google_Map.setCenter(new google.maps.LatLng(latitude, longitude))
+
+			if(typeof(TO_USER_INFORWINDOW[user_name]) === 'undefined'){
+				// add inforwindow
+				var inforwindow = new google.maps.InfoWindow();
+				TO_USER_INFORWINDOW[user_name] = inforwindow;
+				// init info window
+				google.maps.event.addListener(FRIENDS_MARKERS[user_name], 'click', function()  // add click event
+				{
+					inforwindow_require_friend_information(user_name);
+					inforwindow.open(Google_Map, FRIENDS_MARKERS[user_name]); 
+		        });
+			}
+			else
+			{
+				var inforwindow = TO_USER_INFORWINDOW[user_name];
+	        	inforwindow.open(Google_Map, FRIENDS_MARKERS[user_name]); 
+	        	inforwindow_require_friend_information(user_name);       
+	        }
 		})
 		socket.on("cannot_get_friend_location", function(data)
 		{
@@ -205,7 +241,7 @@
 	}
 
 	/* show notification panel */
-	var show_notifications_panel = function()
+	var show_notifications_panel = function(msg)
 	{
 		SHOW_NOTIFICATIONS = true;
 		if(SHOW_FRIEND_LIST)
@@ -221,7 +257,8 @@
 			FRIENDS_REQUEST = data;
 			// check friend list
 			console.log(FRIENDS_REQUEST);
-			var content = "";
+			var notification_num = 0;
+			var content = "<h3> Friend Request </h3>";
 			for(var i = 0; i < FRIENDS_REQUEST.length; i++)
 			{
 				var user_name = FRIENDS_REQUEST[i];
@@ -230,9 +267,40 @@
 				var user_reject_button = "<button onclick=\"reject_friend('" + user_name + "')\">reject</button>";
 				var l = "<li>"+user_name_content+user_accept_button+user_reject_button+"</li>"
 				content += l;
+				notification_num += 1;
 			}
+
+			content += "<hr>"
+			content += "<h3> Nearby Friend </h3>"
+			// add neary friends
+			for(var friend_name in FRIENDS_NEARBY)
+			{
+				if(FRIENDS_NEARBY[friend_name] === true)
+				{
+					var user_name = friend_name;
+					var distance = "<span class='friend_distance'>" + parseInt(FRIENDS_DISTANCE[user_name])+"m </span>"
+					var user_name_content = "<p>"+user_name + distance +"</p>";
+
+					content += user_name_content;
+					// notification_num += 1;
+				}
+			}
+
+			// show public user message
+			content += "<hr>"
+			content += "<h3> Nearby Public Message </h3>"
+			for(var i in NEARBY_PUBLIC_MESSAGE)
+			{
+				var user_name = NEARBY_PUBLIC_MESSAGE[i][0];
+				var user_message = NEARBY_PUBLIC_MESSAGE[i][1];
+
+				content+= "<p>"+user_name+": <span>" + user_message + "</span> </p>"
+			}
+
 			// add content to ul
 			document.getElementById('notifications_list').innerHTML = content;
+			// change notification number span 
+			document.getElementById("notification_num").innerHTML = notification_num;
 		})
 	}
 	/* hide notification panel */
@@ -291,17 +359,17 @@
 											   icon:iconBase + 'schools_maps.png', // set icon
 											   title:user_name+":"+post_date}); 
 
-			var infowindow = new google.maps.InfoWindow();
-			INFOWINDOWS[inforindow_marker_count] = infowindow
+			var inforwindow = new google.maps.InfoWindow();
+			INFOWINDOWS[inforindow_marker_count] = inforwindow
 			MARKERS[inforindow_marker_count] = marker
 
 			// init info window
 			google.maps.event.addListener(marker, 'click', function() {
 	            //                        alert(user_name + ": "+information[user_name][post_date]["message"])
-	            //infowindow.setContent("<strong>"+user_name+":</strong></br>"+message)
-	            infowindow.setContent("Loading...")
+	            //inforwindow.setContent("<strong>"+user_name+":</strong></br>"+message)
+	            inforwindow.setContent("Loading...")
 	            socket.emit('requirePostContent',[user_name, post_date])
-	            infowindow.open(Google_Map, marker)                
+	            inforwindow.open(Google_Map, marker)                
 	        });
 		}
 
@@ -364,17 +432,17 @@
 											   icon:iconBase + 'schools_maps.png', // set icon
 											   title:user_name+":"+post_date}); 
 
-			var infowindow = new google.maps.InfoWindow();
-			INFOWINDOWS[inforindow_marker_count] = infowindow
+			var inforwindow = new google.maps.InfoWindow();
+			INFOWINDOWS[inforindow_marker_count] = inforwindow
 			MARKERS[inforindow_marker_count] = marker
 
 			// init info window
 			google.maps.event.addListener(marker, 'click', function() {
 	            //                        alert(user_name + ": "+information[user_name][post_date]["message"])
-	            //infowindow.setContent("<strong>"+user_name+":</strong></br>"+message)
-	            infowindow.setContent("Loading...")
+	            //inforwindow.setContent("<strong>"+user_name+":</strong></br>"+message)
+	            inforwindow.setContent("Loading...")
 	            socket.emit('requirePostContent',[user_name, post_date])
-	            infowindow.open(Google_Map, marker)                
+	            inforwindow.open(Google_Map, marker)                
 	        });
 		})
 		// format content in inforwindows
@@ -464,7 +532,8 @@
 		{
 			from_user_name = data[0];  // get request from user
 			FRIENDS_REQUEST = data[1]; // update friend request data
-			alert("You have a friend request from : " + from_user_name);
+			// alert("You have a friend request from : " + from_user_name);
+			show_notifications_panel("");
 		})
 
 		// update friend location 
@@ -472,30 +541,106 @@
 		{
 			var longitude = data[0];
 			var latitude = data[1];
-			var user_name = data[2];
+			var user_name = data[2];        
 
 			FRIENDS_LONGITUDE[user_name] = longitude;
 			FRIENDS_LATITUDE[user_name] = latitude;
-
+			var distance = distanceBetweenTwoPoint(parseFloat(longitude), parseFloat(latitude), parseFloat(LONGITUDE), parseFloat(LATITUDE))
+			console.log("User current location longitude: "+LONGITUDE+" latitude: "+LATITUDE);
 			console.log("GET longitude: "+longitude+" latitude: "+latitude+" from "+user_name);
+			console.log("Distance from "+user_name+" :" + distance);
+
+			if(typeof(FRIENDS_NEARBY[user_name]) === 'undefined')
+				FRIENDS_NEARBY[user_name] = false;
+			if(distance >= 100)
+				FRIENDS_NEARBY[user_name] = false;
+			else
+			{
+				if(FRIENDS_NEARBY[user_name]) // friend already in area
+				{
+					/* do nothing */
+				}
+				else
+				{
+					FRIENDS_NEARBY[user_name] = true;
+					FRIENDS_DISTANCE[user_name] = distance;
+					show_notifications_panel("");
+					// alert("Your friend: " + user_name +" is now approximately " + parseInt(distance) + "m from u")
+				}
+			}
+			
+
 				// get icon from google
   			var iconBase = 'https://maps.google.com/mapfiles/kml/shapes/';
 			// init latlon
 			var latlon=new google.maps.LatLng(latitude, longitude)
 			// set marker
 			if(typeof(FRIENDS_MARKERS[user_name]) === 'undefined')
+			{
 				FRIENDS_MARKERS[user_name]=new google.maps.Marker({position:latlon,
 					map:Google_Map,
 					icon:iconBase + 'schools_maps.png', // set icon
 					title:user_name}); 
+			}
 			else
+			{
 				FRIENDS_MARKERS[user_name].setPosition(latlon) // update location
+			}
+
+			if(typeof(TO_USER_INFORWINDOW[user_name]) === 'undefined')
+			{
+				// add inforwindow
+				var inforwindow = new google.maps.InfoWindow();
+				TO_USER_INFORWINDOW[user_name] = inforwindow
+				// init info window
+				google.maps.event.addListener(FRIENDS_MARKERS[user_name], 'click', function()  // add click event
+				{
+					inforwindow_require_friend_information(user_name);
+					inforwindow.open(Google_Map, FRIENDS_MARKERS[user_name]); 
+		        });
+			}
 		})
 
 		// is already
 		socket.on("is_already_friend", function(data)
 		{
 			alert(data+ " is already ur friend");
+		})
+
+		/* inforwindow receive information from friend. update friend name, friend chat */
+		socket.on("receive_friend_information", function(data)
+	    {
+	    	var format_chat_message = function(messages)
+	    	{
+	    		var output = "<ul>";
+	    		for(var i = 0; i < messages.length; i++)
+	    		{
+	    			output += "<li>"+messages[i]+"</li>"
+	    		}
+	    		output+= '</ul>'
+	    		return output
+	    	}
+	    	var content = "";
+	    	var user_name = data[0];
+	    	var chat_message = data[1];
+	    	var chat_str = format_chat_message(chat_message);
+	    	var p = "<h3>"+user_name+"</h3>"
+	    	var chat_div = "<div style='width 190px; height:130px; overflow:scroll; background-color:yellow'  id='chat_div_" + CHAT_DIV_ID + "'> "
+	    					+ chat_str +
+	    				  " </div>"
+	    	var input_ = "<input value='message to send' style='height:50px;' id='" + 'chat_input_'+CHAT_INPUT_ID + "'>";
+	    	var button = "<button onclick='chat_send_message(\""+CURRENT_USER_NAME + "\"," + '"' + user_name + '",' + '"' + CHAT_INPUT_ID + '",' +
+	    	'"'+CHAT_DIV_ID+'"' + ") '>send</button>";
+	    	content = content + "<div style='width:200px; height:220px; overflow:scroll;'>" + p + chat_div + input_ + button + "</div>";
+	    	TO_USER_INFORWINDOW[user_name].setContent(content);
+
+	    	// update char input id
+	    	CHAT_INPUT_ID++;
+	     })
+
+		socket.on("ur_friend_accept_u_as_friend", function(data)
+		{
+			alert("User: "+data[0]+" has accepeted your friend request ;)");
 		})
 
 		// need_update_friend_list_or_notifications
@@ -510,6 +655,30 @@
 				socket.emit("request_friend_list_information", CURRENT_USER_NAME);
 			}
 			socket.emit("send_ur_location_to_friend", [CURRENT_USER_NAME, LONGITUDE, LATITUDE]);
+		})
+
+		socket.on("public_message", function(data)
+		{
+			var post_user_name = data[0];
+			var user_message = data[1];
+			var user_post_date = data[2];
+			var user_longitude = data[3];
+			var user_latitude = data[4];
+			console.log("receive public message")
+			console.log(post_user_name);
+			console.log(user_message);
+			console.log(user_post_date);
+			console.log(user_longitude);
+			console.log(user_latitude);
+
+			PUBLIC_MESSAGE[user_post_date+":"+post_user_name] = data;
+			if(distanceBetweenTwoPoint(user_longitude, user_latitude, LONGITUDE, LATITUDE)<=100 && post_user_name!==CURRENT_USER_NAME)
+			{
+				if(NEARBY_PUBLIC_MESSAGE[user_post_date+":"+post_user_name] === false || typeof(NEARBY_PUBLIC_MESSAGE[user_post_date+":"+post_user_name])==='undefined'){
+					NEARBY_PUBLIC_MESSAGE[user_post_date+":"+post_user_name] = data;
+					show_notifications_panel();
+				}
+			}
 		})
 	}
 	</script>

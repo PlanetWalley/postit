@@ -64,10 +64,11 @@ var PostIt = function(){
 	var message = document.getElementById('post_message').value;
 	message = message.replace(/\n/g,"</br>");
 
-	var userName = document.getElementById('user_name').value;
-	user_name = userName
+	//var userName = document.getElementById('user_name').value;
+	//user_name = userName
 	// save user_name to local storage
-	window.localStorage["user_name"] = user_name
+	var user_name = CURRENT_USER_NAME;
+	// window.localStorage["user_name"] = user_name
 	
 	var post_information = {
 		latitude:latitude,   // post location latitude
@@ -84,4 +85,19 @@ var PostIt = function(){
 	// $('#openPostCard').qtip('hide')
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

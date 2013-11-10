@@ -27,3 +27,14 @@ var Google_Map = null;
 var User_Location_Marker = null
 var User_Location_Marker_InfoWindow = null
 var hasInitGeolocation = false
+
+var CHAT_INPUT_ID = 0;
+var CHAT_DIV_ID = 0;
+var CHAT_DIV = {}; // key is user1:user2
+var TO_USER_INFORWINDOW = {} // save inforwindow 
+
+var FRIENDS_NEARBY = {};
+var FRIENDS_DISTANCE = {};
+
+var PUBLIC_MESSAGE = {} ; // key is post date + user_name
+var NEARBY_PUBLIC_MESSAGE = {}; // near by public message
