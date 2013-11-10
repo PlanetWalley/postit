@@ -142,9 +142,7 @@ button{
 	bottom: 30;
 	background-color: #454545;
 	display: none;
-
 }
-
 
 #user_profile_picture
 {
@@ -181,7 +179,7 @@ button{
 
 #friend_information
 {
-	background-color: yellow;
+	/* background-color: yellow; */
 	position: absolute;
 	top: 200px;
 	left: 20px;
@@ -189,6 +187,60 @@ button{
 	height: 300px;
 	overflow: scroll;
 }
+
+#notifications
+{
+	position: absolute;
+	right: 120px;
+	bottom: 0px;
+	width: 120px;
+	height: 30px;
+	font-size: 12px;
+	display: none;
+}
+
+#notifications_panel
+{
+	color: white;
+	position: absolute;
+	width: 400px;
+	height: 500px;
+	right: 0px;
+	bottom: 30;
+	background-color: #454545;
+	display: none;
+}
+
+#notifications_area
+{
+	position: absolute;
+	top: 60px;
+	left: 10px;
+	height: 400px;
+	width: 350px;
+	/* background-color: orange; */
+	overflow: scroll;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

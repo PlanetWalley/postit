@@ -170,7 +170,7 @@ io.sockets.on('connection', function (socket) {
       {
         console.log("User Login====");
         console.log("User Socket ID: "+socket.id);
-        socket.emit("successfully-login",user_name); 
+        socket.emit("successfully-login",[user_name, USER_FRIEND_REQUSET[user_name]]); 
 
         // set user socket id
         SOCKET_ID[user_name] = socket
@@ -227,15 +227,15 @@ io.sockets.on('connection', function (socket) {
     var to_user = data[0];
     if (to_user in USER_PASSWD) // user exists
     {
-
-      socket.emit("successfully_send_friend_request",[]); // send friend request to the friend u want to add
-      SOCKET_ID[to_user].emit("have_friend_request", request_from); // send request to friend
-
       // add friend request
       if(request_from in USER_FRIEND_REQUSET[to_user])
       {}
-      else
+      else{
         USER_FRIEND_REQUSET[to_user].push(request_from); // update user_friend_request
+      }
+
+      socket.emit("successfully_send_friend_request",[]); // send friend request to the friend u want to add
+      SOCKET_ID[to_user].emit("have_friend_request", [request_from, USER_FRIEND_REQUSET[to_user] ]); // send request to friend
 
       // update data base
       db.users.update({name:to_user},{$set: {friend_request_from: USER_FRIEND_REQUSET[to_user]}})
@@ -246,11 +246,82 @@ io.sockets.on('connection', function (socket) {
     }
   })
 
+  // user accept friend
+  socket.on('accept_friend', function(data)
+  {
+    // user_ accept accept_ as friend
+    var user_ = data[0];
+    var accept_ = data[1];
+
+    console.log("User: "+user_ +" accept " + accept_ + " as friend")
+
+    var temp = []
+    // remove accept_ from user_ friend request list
+    for(var i = 0; i < USER_FRIEND_REQUSET[user_].length; i++)
+    {
+      if(accept_ === USER_FRIEND_REQUSET[user_][i])
+        continue;
+      else 
+        temp.push(USER_FRIEND_REQUSET[user_][i]);
+    }
+    USER_FRIEND_REQUSET[user_] = temp;
+
+    // update data base
+    db.users.update({name: user_}, {$set: {friend_request_from: USER_FRIEND_REQUSET[user_]}})
+
+    // add friend to both side
+    USER_FRIENDS[user_].push(accept_);
+    USER_FRIENDS[accept_].push(user_);
+
+    // update data base
+    db.users.update({name: user_}, {$set: {friends_list: USER_FRIENDS[user_]}});
+    db.users.update({name: accept_}, {$set: {friends_list: USER_FRIENDS[accept_]}});
+  })
+
+  // user reject friend
+  socket.on('reject_friend', function(data)
+  {
+    // user_ accept accept_ as friend
+    var user_ = data[0];
+    var accept_ = data[1];
+
+    console.log("User: "+user_ +" reject " + accept_ + " as friend")
+
+
+    var temp = []
+    // remove accept_ from user_ friend request list
+    for(var i = 0; i < USER_FRIEND_REQUSET[user_].length; i++)
+    {
+      if(accept_ === USER_FRIEND_REQUSET[user_][i])
+        continue;
+      else 
+        temp.push(USER_FRIEND_REQUSET[user_][i]);
+    }
+    USER_FRIEND_REQUSET[user_] = temp;
+
+    // update data base
+    db.users.update({name: user_}, {$set: {friend_request_from: USER_FRIEND_REQUSET[user_]}})
+
+
+  })
+
   // user disconnect
   socket.on('disconnect', function()
   {
     console.log("USER_DISCONNECT");
     console.log("Socket ID: " + socket.id);
+  })
+
+  // user request to get information about notifications
+  socket.on('request_notifications_information', function(user_name)
+  {
+    socket.emit("receive_notifications_information", USER_FRIEND_REQUSET[user_name] );
+  })
+
+  // user request friend list information
+  socket.on('request_friend_list_information', function(user_name)
+  {
+    socket.emit("receive_friend_list_information", USER_FRIENDS[user_name]);
   })
 
 });

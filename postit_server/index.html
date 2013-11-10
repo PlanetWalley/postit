@@ -55,49 +55,25 @@
 		<h2 id="friend_list_user_name">
 			User Name
 		</h2>
-		<button id="close_panel" onclick="hide_friend_list_panel()"> X </button>
 		<button id="add_friend" onclick="add_friend()">Add Friend</button>
 		<button id="logout">Logout</button>
 		<div id="friend_information">
-		<ul>
-			<li>
-				<p> yiyi </p>
-			</li>
-			<li>
-				<p> yiyi </p>
-			</li>
-			<li>
-				<p> yiyi </p>
-			</li>
-			<li>
-				<p> yiyi </p>
-			</li>
-			<li>
-				<p> yiyi </p>
-			</li>
-			<li>
-				<p> yiyi </p>
-			</li>
-			<li>
-				<p> yiyi </p>
-			</li>
-			<li>
-				<p> yiyi </p>
-			</li>
-			<li>
-				<p> yiyi </p>
-			</li>
-			<li>
-				<p> yiyi </p>
-			</li>
-			<li>
-				<p> yiyi </p>
-			</li>
-
-		</ul>
+			<ul id="friend_information_list">
+			</ul>
 		</div>
 	</div>
 
+	<button id="notifications" onclick="show_notifications_panel()"> Notifications </button>
+	<div id="notifications_panel">
+		<h1 style="margin-left:20px;">
+			Notifications ;)
+		</h1>
+		<div id="notifications_area">
+			<ul id="notifications_list">
+				
+			</ul>
+		</div>
+	</div>
 	<script>
 	// login function
 	var user_login = function()
@@ -166,11 +142,75 @@
 	var show_friend_list = function()
 	{
 		$("#friend_list_panel").show(1000);
+		document.getElementById("friend_list").onclick = hide_friend_list_panel; // reset click function
+		$("#friend_list_user_name").html ( CURRENT_USER_NAME );
+		socket.emit("request_friend_list_information", CURRENT_USER_NAME);
+		socket.on("receive_friend_list_information", function(data)
+		{
+			var FRIEND_LIST = data;
+			// check friend list
+			console.log(FRIEND_LIST);
+
+			var content = "";
+			for(var i = 0; i < FRIEND_LIST.length; i++)
+			{
+				var user_name = FRIEND_LIST[i];
+				var user_name_content = "<p>"+user_name+"</p>";
+				var l = "<li>"+user_name+"</li>";
+				content += l;
+			}
+
+			document.getElementById('friend_information_list').innerHTML = content;
+		})
 	}
 	/* hide friend list panel */
 	var hide_friend_list_panel = function()
 	{
 		$("#friend_list_panel").hide(1000);
+		document.getElementById("friend_list").onclick = show_friend_list;
+	}
+
+	/* show notification panel */
+	var show_notifications_panel = function()
+	{
+		$("#notifications_panel").show(1000);
+		document.getElementById("notifications").onclick = hide_notification_panel;
+		
+		socket.emit("request_notifications_information", CURRENT_USER_NAME);
+		socket.on("receive_notifications_information", function(data)
+		{
+			FRIENDS_REQUEST = data;
+			// check friend list
+			console.log(FRIENDS_REQUEST);
+			var content = "";
+			for(var i = 0; i < FRIENDS_REQUEST.length; i++)
+			{
+				var user_name = FRIENDS_REQUEST[i];
+				var user_name_content = "<p>"+user_name+"</p>";
+				var user_accept_button = "<button onclick=\"accept_friend('" + user_name + "')\">accpet</button>";
+				var user_reject_button = "<button onclick=\"reject_friend('" + user_name + "')\">reject</button>";
+				var l = "<li>"+user_name_content+user_accept_button+user_reject_button+"</li>"
+				content += l;
+			}
+			// add content to ul
+			document.getElementById('notifications_list').innerHTML = content;
+		})
+	}
+	/* hide notification panel */
+	var hide_notification_panel = function()
+	{
+		$("#notifications_panel").hide(1000);
+		document.getElementById("notifications").onclick = show_notifications_panel;
+	}
+	var accept_friend = function(user_name) // accpet user friend request from user_name
+	{
+		alert("Accept Friend: "+user_name);
+		socket.emit("accept_friend", [CURRENT_USER_NAME, user_name]);
+	}
+	var reject_friend = function(user_name) // accpet user friend request from user_name
+	{
+		alert("Reject Friend: "+user_name)
+		socket.emit("reject_friend", [CURRENT_USER_NAME, user_name]);
 	}
 
 	/* add friend */
@@ -340,6 +380,8 @@
 			$("#login").animate({ "top": -800 }, 1000); 
 			// show friend list button
 			$("#friend_list").show(1000);
+			// show notification button
+			$("#notifications").show(1000);
 
 		})
 
@@ -352,12 +394,15 @@
 		socket.on('successfully-login', function(data)
 		{
 			alert("Successfully Login");
-			CURRENT_USER_NAME = data; // update user_name
+			CURRENT_USER_NAME = data[0]; // update user_name
+			FRIENDS_REQUEST = data[1];   // update user friend list
 			USER_LOGIN = true; // update global variable
 			// hide login page
 			$("#login").animate({ "top": -800 }, 1000); 
 			// show friend list button
 			$("#friend_list").show(1000);
+			// show notification button
+			$("#notifications").show(1000);
 		})
 
 		// user_does_not_exist
@@ -367,8 +412,10 @@
 		})
 
 		// have friend request
-		socket.on('have_friend_request', function(from_user_name)
+		socket.on('have_friend_request', function(data)
 		{
+			from_user_name = data[0];  // get request from user
+			FRIENDS_REQUEST = data[1]; // update friend request data
 			alert("You have a friend request from : " + from_user_name);
 		})
 	}
