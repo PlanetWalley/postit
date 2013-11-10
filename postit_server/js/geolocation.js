@@ -23,7 +23,7 @@ var showPosition = function(position){
 
     // google map
     var latlon=new google.maps.LatLng(latitude, longitude)
-    var mapholder=document.getElementById('mapholder')
+    // var mapholder=document.getElementById('mapholder')
       //mapholder.style.height='100px';
       //mapholder.style.width='100px';
       //mapholder.style.border-radius='250px';
@@ -79,7 +79,7 @@ var showPosition = function(position){
         infowindow.open(Google_Map, User_Location_Marker);
         // hide hint after 4 second
         setTimeout(function(){infowindow.close()},4000)
-      } 
+    } 
     // update user marker position
     else{
       User_Location_Marker.setPosition(latlon)

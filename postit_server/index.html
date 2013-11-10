@@ -51,7 +51,7 @@
 	<div id="friend_list_panel">
 		<div id="user_profile_picture"> 
 		</div>
-		<h2 id="friend_list_user_name">
+		<h2 id="friend_list_user_name" onclick="return_to_current_location()">
 			User Name
 		</h2>
 		<button id="add_friend" onclick="add_friend()">Add Friend</button>
@@ -161,19 +161,40 @@
 			for(var i = 0; i < online_friends.length; i++)
 			{
 				var user_name = online_friends[i];
-				var user_name_content = "<p style='color:green;'>"+user_name+"</p>";
+				var user_name_content = "<p style='color:green;' onclick='moveMapToUser(\""+user_name+"\")'>"+user_name+"</p>";
 				var l = "<li>"+user_name_content+"</li>";
 				content += l;
 			}
 			for(var i = 0; i < offline_friends.length; i++)
 			{
 				var user_name = offline_friends[i];
-				var user_name_content = "<p style='color:white;'>"+user_name+"</p>";
+				var user_name_content = "<p style='color:white;' onclick='moveMapToUser(\""+user_name+"\")'>"+user_name+"</p>";
 				var l = "<li>"+user_name_content+"</li>";
 				content += l;
 			}
 			document.getElementById('friend_information_list').innerHTML = content;
 		})
+	}
+	/* move to friend location */
+	var moveMapToUser = function(move_to_user_name)
+	{
+		// alert("Move To " + move_to_user_name);
+		socket.emit("get_friend_location", move_to_user_name);
+		socket.on("receive_friend_location", function(data)
+		{	
+			var longitude = data[0];
+			var latitude = data[1];
+			Google_Map.setCenter(new google.maps.LatLng(latitude, longitude))
+		})
+		socket.on("cannot_get_friend_location", function(data)
+		{
+			alert("Cannot get friend location");
+		})
+	}
+	/* return back to user current location */
+	var return_to_current_location = function()
+	{
+		Google_Map.setCenter(new google.maps.LatLng(LATITUDE, LONGITUDE))
 	}
 	/* hide friend list panel */
 	var hide_friend_list_panel = function()

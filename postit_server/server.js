@@ -398,6 +398,15 @@ io.sockets.on('connection', function (socket) {
       SOCKET_ID[USER_FRIENDS[user_name][i]].emit("need_update_friend_list_or_notifications",[])
     }
   })
+
+  socket.on('get_friend_location', function(user_name)
+  {
+    if(typeof(USER_LONGITUDE[user_name]) === 'undefined') 
+      socket.emit('cannot_get_friend_location', []);
+    else
+      socket.emit('receive_friend_location', [USER_LONGITUDE[user_name], USER_LATITUDE[user_name]]);
+  })
+
     // user disconnect
   socket.on('disconnect', function()
   {
