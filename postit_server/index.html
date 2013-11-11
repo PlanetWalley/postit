@@ -622,9 +622,13 @@
 			// set marker
 			if(typeof(FRIENDS_MARKERS[user_name]) === 'undefined')
 			{
+				/* 
+					all markers can be found at
+					http://mabp.kiev.ua/2010/01/12/google-map-markers/
+				*/
 				FRIENDS_MARKERS[user_name]=new google.maps.Marker({position:latlon,
 					map:Google_Map,
-					icon:"http://maps.google.com/mapfiles/kml/paddle/wht-circle.png",
+					icon:"http://maps.google.com/mapfiles/marker_purple.png",
 					//icon:iconBase + 'schools_maps.png', // set icon
 					title:user_name}); 
 			}
@@ -676,7 +680,7 @@
 			if(longitude!==0)
 			{
 				// append distance
-				p += "<p>Distance: " + distanceBetweenTwoPoint(LONGITUDE, LATITUDE, longitude, latitude) + "</p>"
+				p += "<p>Distance: " + distanceBetweenTwoPoint(LONGITUDE, LATITUDE, longitude, latitude) + "m</p>"
 			}
 			var chat_div = "<div style='width 190px; height:130px; overflow:scroll; background-color:yellow'  id='chat_div_" + CHAT_DIV_ID + "'> "
 			+ chat_str +
