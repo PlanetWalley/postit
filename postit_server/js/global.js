@@ -38,3 +38,5 @@ var FRIENDS_DISTANCE = {};
 
 var PUBLIC_MESSAGE = {} ; // key is post date + user_name
 var NEARBY_PUBLIC_MESSAGE = {}; // near by public message
+
+var NOTIFICATION_MESSAGE = ""; // notification message

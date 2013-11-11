@@ -82,10 +82,11 @@
 			alert("Cannot connect to server... Please try later")
 			return;
 		}*/
-		alert("login")
+		// alert("login")
 		var user_name = $("#login_user_name").val();
 		var pwd = $("#login_user_pwd").val();
 		socket.emit("user_login", [user_name, pwd]);
+		show_notifications_panel("Now logging in, please wait")
 	}
 
 
@@ -106,15 +107,17 @@
 			alert("Invalid user name: "+user_name);
 			return ;
 		}
-		if(CONNECTED_TO_SERVER)
-		{
+		show_notifications_panel("Now logging in, please wait")
+		//if(CONNECTED_TO_SERVER)
+		//{
 			/* check with server whether user existed */
 			socket.emit("user_wants_to_signup", [user_name, user_pwd])
-		}
+		//}
+		/*
 		else
 		{
 			alert("U haven't connected to server; please check ur internet connection")
-		}
+		}*/
 	}
 
 	var user_change_to_signup_page = function()
@@ -244,6 +247,7 @@
 	/* show notification panel */
 	var show_notifications_panel = function(msg)
 	{
+		NOTIFICATION_MESSAGE = msg;
 		SHOW_NOTIFICATIONS = true;
 		if(SHOW_FRIEND_LIST)
 		{
@@ -252,58 +256,14 @@
 		$("#notifications_panel").show(1000);
 		document.getElementById("notifications").onclick = hide_notification_panel;
 		
+		if(!USER_LOGIN)
+			document.getElementById('notifications_list').innerHTML = "<h3> Connecting to server please wait </h3>";
+		else
+			document.getElementById('notifications_list').innerHTML = "";   
+
 		socket.emit("request_notifications_information", CURRENT_USER_NAME);
-		socket.on("receive_notifications_information", function(data)
-		{
-			FRIENDS_REQUEST = data;
-			// check friend list
-			console.log(FRIENDS_REQUEST);
-			var notification_num = 0;
-			var content = "<h3> Friend Request </h3>";
-			for(var i = 0; i < FRIENDS_REQUEST.length; i++)
-			{
-				var user_name = FRIENDS_REQUEST[i];
-				var user_name_content = "<p>"+user_name+"</p>";
-				var user_accept_button = "<button onclick=\"accept_friend('" + user_name + "')\">accpet</button>";
-				var user_reject_button = "<button onclick=\"reject_friend('" + user_name + "')\">reject</button>";
-				var l = "<li>"+user_name_content+user_accept_button+user_reject_button+"</li>"
-				content += l;
-				notification_num += 1;
-			}
-
-			content += "<hr>"
-			content += "<h3> Nearby Friend </h3>"
-			// add neary friends
-			for(var friend_name in FRIENDS_NEARBY)
-			{
-				if(FRIENDS_NEARBY[friend_name] === true)
-				{
-					var user_name = friend_name;
-					var distance = "<span class='friend_distance'>" + parseInt(FRIENDS_DISTANCE[user_name])+"m </span>"
-					var user_name_content = "<p>"+user_name + distance +"</p>";
-
-					content += user_name_content;
-					// notification_num += 1;
-				}
-			}
-
-			// show public user message
-			content += "<hr>"
-			content += "<h3> Nearby Public Message </h3>"
-			for(var i in NEARBY_PUBLIC_MESSAGE)
-			{
-				var user_name = NEARBY_PUBLIC_MESSAGE[i][0];
-				var user_message = NEARBY_PUBLIC_MESSAGE[i][1];
-
-				content+= "<p>"+user_name+": <span>" + user_message + "</span> </p>"
-			}
-
-			// add content to ul
-			document.getElementById('notifications_list').innerHTML = content;
-			// change notification number span 
-			document.getElementById("notification_num").innerHTML = notification_num;
-		})
 }
+
 /* hide notification panel */
 var hide_notification_panel = function()
 {
@@ -390,6 +350,58 @@ var hide_notification_panel = function()
 	            inforwindow.open(Google_Map, marker)                
 	        });
 		}
+
+		socket.on("receive_notifications_information", function(data)
+		{
+			FRIENDS_REQUEST = data;
+			if(data == null) return;
+			// check friend list
+			console.log(FRIENDS_REQUEST);
+			var notification_num = 0;
+			var content = /*"<h3>"+NOTIFICATION_MESSAGE+"</h3>"+*/"<h3> Friend Request </h3>";
+			for(var i = 0; i < FRIENDS_REQUEST.length; i++)
+			{
+				var user_name = FRIENDS_REQUEST[i];
+				var user_name_content = "<p>"+user_name+"</p>";
+				var user_accept_button = "<button onclick=\"accept_friend('" + user_name + "')\">accpet</button>";
+				var user_reject_button = "<button onclick=\"reject_friend('" + user_name + "')\">reject</button>";
+				var l = "<li>"+user_name_content+user_accept_button+user_reject_button+"</li>"
+				content += l;
+			}
+			notification_num = FRIENDS_REQUEST.length;
+
+			content += "<hr>"
+			content += "<h3> Nearby Friend </h3>"
+			// add neary friends
+			for(var friend_name in FRIENDS_NEARBY)
+			{
+				if(FRIENDS_NEARBY[friend_name] === true)
+				{
+					var user_name = friend_name;
+					var distance = "<span class='friend_distance'>" + parseInt(FRIENDS_DISTANCE[user_name])+"m </span>"
+					var user_name_content = "<p>"+user_name + distance +"</p>";
+
+					content += user_name_content;
+					// notification_num += 1;
+				}
+			}
+
+			// show public user message
+			content += "<hr>"
+			content += "<h3> Nearby Public Message </h3>"
+			for(var i in NEARBY_PUBLIC_MESSAGE)
+			{
+				var user_name = NEARBY_PUBLIC_MESSAGE[i][0];
+				var user_message = NEARBY_PUBLIC_MESSAGE[i][1];
+
+				content+= "<p>"+user_name+": <span>" + user_message + "</span> </p>"
+			}
+
+			// add content to ul
+			document.getElementById('notifications_list').innerHTML = content;
+			// change notification number span 
+			document.getElementById("notification_num").innerHTML = notification_num;
+		})
 
 		   // update map from server
 		   socket.on('updateMapForFirstTimeConnectedUser',function(data){
@@ -504,6 +516,9 @@ var hide_notification_panel = function()
 			$("#friend_list").show(1000);
 			// show notification button
 			$("#notifications").show(1000);
+
+			// set default notifications
+    		document.getElementById('notifications_list').innerHTML = "";   
 		})
 
 		// login--wrong_user_name
@@ -530,6 +545,10 @@ var hide_notification_panel = function()
     		// ask friends to update friend list and notifications
     		socket.emit("ask_friends_to_update_friends_list_and_notifications",CURRENT_USER_NAME)
     		// request friend location
+
+    		// set default notifications
+    		document.getElementById('notifications_list').innerHTML = "";   
+    		console.log("set default notifications")
     	})
 
 		// user_does_not_exist
@@ -567,7 +586,7 @@ var hide_notification_panel = function()
 				FRIENDS_NEARBY[user_name] = false;
 			else
 			{
-				if(FRIENDS_NEARBY[user_name]) // friend already in area
+				if(FRIENDS_NEARBY[user_name] == true) // friend already in area
 				{
 					/* do nothing */
 				}
@@ -581,8 +600,8 @@ var hide_notification_panel = function()
 			}
 			
 
-				// get icon from google
-				var iconBase = 'https://maps.google.com/mapfiles/kml/shapes/';
+			// get icon from google
+			var iconBase = 'https://maps.google.com/mapfiles/kml/shapes/';
 			// init latlon
 			var latlon=new google.maps.LatLng(latitude, longitude)
 			// set marker
@@ -653,6 +672,9 @@ var hide_notification_panel = function()
 		socket.on("ur_friend_accept_u_as_friend", function(data)
 		{
 			alert("User: "+data[0]+" has accepeted your friend request ;)");
+			socket.emit("request_notifications_information", CURRENT_USER_NAME);
+			show_notifications_panel("User: "+data[0]+" has accepeted your friend request ;)")
+			/* alert("User: "+data[0]+" has accepeted your friend request ;)"); */
 		})
 
 		// need_update_friend_list_or_notifications
@@ -688,7 +710,7 @@ var hide_notification_panel = function()
 			{
 				if(NEARBY_PUBLIC_MESSAGE[user_post_date+":"+post_user_name] === false || typeof(NEARBY_PUBLIC_MESSAGE[user_post_date+":"+post_user_name])==='undefined'){
 					NEARBY_PUBLIC_MESSAGE[user_post_date+":"+post_user_name] = data;
-					show_notifications_panel();
+					show_notifications_panel("");
 				}
 			}
 		})
