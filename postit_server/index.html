@@ -713,6 +713,10 @@
 				socket.emit("send_ur_location_to_friend", [CURRENT_USER_NAME, LONGITUDE, LATITUDE]);
 		})
 
+		socket.on("successfully_send_friend_request", function(data)
+		{
+			alert("Friend Request Sent");
+		})
 		socket.on("public_message", function(data)
 		{
 			var post_user_name = data[0];
