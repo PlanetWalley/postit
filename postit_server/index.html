@@ -5,6 +5,8 @@
 	<!-- CSS stylesheet -->
 	<link rel="stylesheet" type="text/css" href="./css/index.css">
 	<link rel="stylesheet" type="text/css" href="./css/post_card.css">
+	<!-- nodejs use socketio to build server -->
+	<script src="/socket.io/socket.io.js"></script>
 	<!-- Google Maps API -->
 	<script src="http://maps.google.com/maps/api/js?sensor=false"></script> 
 	<!-- Load Global Variable -->
@@ -18,8 +20,6 @@
 	<!-- Local JavaScript -->
 	<script src="./js/geolocation.js"></script>
 	<!-- <script type="text/javascript" src="./js/offline_post.js"></script> -->
-	<!-- nodejs use socketio to build server -->
-	<script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
 	<div id="locationInfo">
@@ -262,15 +262,15 @@
 			document.getElementById('notifications_list').innerHTML = "";   
 
 		socket.emit("request_notifications_information", CURRENT_USER_NAME);
-}
+	}
 
-/* hide notification panel */
-var hide_notification_panel = function()
-{
-	SHOW_NOTIFICATIONS = false;
-	$("#notifications_panel").hide(1000);
-	document.getElementById("notifications").onclick = show_notifications_panel;
-}
+	/* hide notification panel */
+	var hide_notification_panel = function()
+	{
+		SHOW_NOTIFICATIONS = false;
+		$("#notifications_panel").hide(1000);
+		document.getElementById("notifications").onclick = show_notifications_panel;
+	}
 	var accept_friend = function(user_name) // accpet user friend request from user_name
 	{
 		alert("Accept Friend: "+user_name);
@@ -353,6 +353,10 @@ var hide_notification_panel = function()
 
 		socket.on("receive_notifications_information", function(data)
 		{
+			console.log("RECEIVE NOTIFICATION INFORMATION")
+			console.log(FRIENDS_REQUEST);
+			console.log(FRIENDS_NEARBY);
+
 			FRIENDS_REQUEST = data;
 			if(data == null) return;
 			// check friend list
@@ -580,10 +584,12 @@ var hide_notification_panel = function()
 			console.log("GET longitude: "+longitude+" latitude: "+latitude+" from "+user_name);
 			console.log("Distance from "+user_name+" :" + distance);
 
-			if(typeof(FRIENDS_NEARBY[user_name]) === 'undefined')
+			if(typeof(FRIENDS_NEARBY[user_name]) === 'undefined'){
 				FRIENDS_NEARBY[user_name] = false;
-			if(distance >= 100)
+			}
+			if(distance >= 100){
 				FRIENDS_NEARBY[user_name] = false;
+			}
 			else
 			{
 				if(FRIENDS_NEARBY[user_name] == true) // friend already in area
@@ -594,8 +600,12 @@ var hide_notification_panel = function()
 				{
 					FRIENDS_NEARBY[user_name] = true;
 					FRIENDS_DISTANCE[user_name] = distance;
-					show_notifications_panel("");
+					// show_notifications_panel("");
 					// alert("Your friend: " + user_name +" is now approximately " + parseInt(distance) + "m from u")
+					console.log("Request notification information cuz one friend nearby")
+					console.log(FRIENDS_NEARBY)
+					// socket.emit("request_notifications_information", CURRENT_USER_NAME);
+					show_notifications_panel("");
 				}
 			}
 			
@@ -654,8 +664,15 @@ var hide_notification_panel = function()
 			var content = "";
 			var user_name = data[0];
 			var chat_message = data[1];
+			var longitude = data[2];
+			var latitude = data[3];
 			var chat_str = format_chat_message(chat_message);
 			var p = "<h3>"+user_name+"</h3>"
+			if(longitude!==0)
+			{
+				// append distance
+				p += "<p>Distance: " + distanceBetweenTwoPoint(LONGITUDE, LATITUDE, longitude, latitude) + "</p>"
+			}
 			var chat_div = "<div style='width 190px; height:130px; overflow:scroll; background-color:yellow'  id='chat_div_" + CHAT_DIV_ID + "'> "
 			+ chat_str +
 			" </div>"
@@ -673,22 +690,22 @@ var hide_notification_panel = function()
 		{
 			alert("User: "+data[0]+" has accepeted your friend request ;)");
 			socket.emit("request_notifications_information", CURRENT_USER_NAME);
-			show_notifications_panel("User: "+data[0]+" has accepeted your friend request ;)")
+			// show_notifications_panel("User: "+data[0]+" has accepeted your friend request ;)")
 			/* alert("User: "+data[0]+" has accepeted your friend request ;)"); */
 		})
 
 		// need_update_friend_list_or_notifications
 		socket.on("need_update_friend_list_or_notifications", function(data)
 		{
-			if(SHOW_NOTIFICATIONS)
-			{
+			// if(SHOW_NOTIFICATIONS)
+			//{
 				socket.emit("request_notifications_information", CURRENT_USER_NAME);
-			}
-			if(SHOW_FRIEND_LIST)
-			{
+			//}
+			//if(SHOW_FRIEND_LIST)
+			//{
 				socket.emit("request_friend_list_information", CURRENT_USER_NAME);
-			}
-			socket.emit("send_ur_location_to_friend", [CURRENT_USER_NAME, LONGITUDE, LATITUDE]);
+			//}
+				socket.emit("send_ur_location_to_friend", [CURRENT_USER_NAME, LONGITUDE, LATITUDE]);
 		})
 
 		socket.on("public_message", function(data)

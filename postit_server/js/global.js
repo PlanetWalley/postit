@@ -31,7 +31,7 @@ var hasInitGeolocation = false
 var CHAT_INPUT_ID = 0;
 var CHAT_DIV_ID = 0;
 var CHAT_DIV = {}; // key is user1:user2
-var TO_USER_INFORWINDOW = {} // save inforwindow 
+var TO_USER_INFORWINDOW = {}; // save inforwindow 
 
 var FRIENDS_NEARBY = {};
 var FRIENDS_DISTANCE = {};

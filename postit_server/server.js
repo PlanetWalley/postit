@@ -416,6 +416,7 @@ io.sockets.on('connection', function (socket) {
 
   socket.on('get_friend_information', function(data)
   {
+    // user_name wants to get information of get_user
     var user_name = data[0];
     var get_user = data[1]
     var user_friends = USER_FRIENDS[user_name];
@@ -424,7 +425,11 @@ io.sockets.on('connection', function (socket) {
       chat_message = []
     else
       chat_message = USER1_TO_USER2_CHAT[user_name+":"+get_user]
-    socket.emit("receive_friend_information", [get_user, chat_message]);
+    var get_longitude = 0;
+    var get_latitude = 1;
+    if(USER_LONGITUDE[get_user]) get_longitude = USER_LONGITUDE[get_user];
+    if(USER_LATITUDE[get_user]) get_latitude = USER_LATITUDE[get_user];
+    socket.emit("receive_friend_information", [get_user, chat_message, get_longitude, get_latitude]);
   
   })
   // user send chat message
