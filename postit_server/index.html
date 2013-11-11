@@ -584,6 +584,11 @@
 			console.log("GET longitude: "+longitude+" latitude: "+latitude+" from "+user_name);
 			console.log("Distance from "+user_name+" :" + distance);
 
+			if(FRIENDS_NEARBY == null)
+			{
+				console.log("FRIENDS_NEARBY shouldn't be null... But Idk why it is null")
+				FRIENDS_NEARBY = {};
+			}
 			if(typeof(FRIENDS_NEARBY[user_name]) === 'undefined'){
 				FRIENDS_NEARBY[user_name] = false;
 			}
