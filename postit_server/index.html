@@ -37,7 +37,7 @@
 		<div id="login2">
 			<button id="login2_button_login" onclick="user_login()"> Login </button>
 			<button id="login2_button_signup" onclick="user_change_to_signup_page()"> Sign Up </button>
-			<button id="login2_button_forgetpwd" > Forget Password? </button>
+			<button id="login2_button_forgetpwd" > Forgot Password? </button>
 			<button id="login2_return_to_login" onclick="user_return_to_login()"> Return? </button>
 		</div>
 
@@ -76,12 +76,12 @@
 	<script>
 	// login function
 	var user_login = function()
-	{
+	{	/*
 		if(!CONNECTED_TO_SERVER)
 		{
-			alert("Cannot connect to server")
+			alert("Cannot connect to server... Please try later")
 			return;
-		}
+		}*/
 		alert("login")
 		var user_name = $("#login_user_name").val();
 		var pwd = $("#login_user_pwd").val();
@@ -92,11 +92,12 @@
 	// signup function
 	var user_signup = function()
 	{
+		/*
 		if(!CONNECTED_TO_SERVER)
 		{
-			alert("Cannot connect to server")
+			alert("Cannot connect to server... Please try later")
 			return;
-		}
+		}*/
 		var user_name = $("#login_user_name").val();
 		var user_pwd = $("#login_user_pwd").val();
 		// check whether user name is valid
